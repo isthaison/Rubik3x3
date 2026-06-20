@@ -1,0 +1,6 @@
+{
+  "name": "Rubik 3x3 Master Solver",
+  "description": "Hệ thống giải mã Rubik 3x3 chuyên nghiệp nhất tích hợp mô phỏng 3D tương tác mượt mà, đồng hồ đếm WCA, các chương huấn luyện viên học thuật Layer-by-layer CFOP và Trợ lý AI Speedcubing.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
