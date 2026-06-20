@@ -195,6 +195,30 @@ export default function CubeSolver() {
     };
   }, [isPlayingAuto, submovePointer, currentStepIndex, solution, autoPlaySpeed, isFullScreen]);
 
+  // Auto transition to the next step when the current step is completed
+  useEffect(() => {
+    if (!solution || !solution[currentStepIndex]) return;
+    const totalMoves = solution[currentStepIndex].moves.length;
+    
+    if (totalMoves > 0 && submovePointer === totalMoves) {
+      if (currentStepIndex < solution.length - 1) {
+        const nextIndex = currentStepIndex + 1;
+        const timer = setTimeout(() => {
+          handleStepIndexChange(nextIndex);
+          setRecalculatedNotification(`Tuyệt vời! Đã hoàn thành Bước ${currentStepIndex + 1}. Tự động chuyển sang Bước ${nextIndex + 1}: ${solution[nextIndex].title}`);
+          triggerHaptic([15, 10, 15]);
+        }, 1200);
+        return () => clearTimeout(timer);
+      } else {
+        const timer = setTimeout(() => {
+          setRecalculatedNotification("Chúc mừng! Bạn đã hoàn thành tất cả các bước giải xuất sắc!");
+          triggerHaptic([30, 30, 30, 50, 100]);
+        }, 1200);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [submovePointer, currentStepIndex, solution]);
+
   // Unfolded net coordinates mapping for manual palette painter
   // Laid out as a standard cross net:
   //      [U]
@@ -669,15 +693,15 @@ export default function CubeSolver() {
                   </div>
                 </div>
               ) : (
-                <div className="p-4 bg-neutral-900 text-center rounded-xl border border-white/5 text-xs font-medium text-emerald-400">
-                  Bước này đã được tối ưu hóa sẵn từ khâu phân tích! Hãy nhấn nút Tiếp theo.
+                <div className="p-4 bg-neutral-900 text-center rounded-xl border border-white/10 text-xs font-semibold text-emerald-400">
+                  Bước này đã được tối ưu hóa sẵn từ khâu phân tích!
                 </div>
               )}
 
               {/* Explanatory notes */}
-              <div className="text-xs text-neutral-400 leading-relaxed bg-neutral-900/30 p-4 rounded-xl border border-white/5">
-                <span className="font-bold block mb-1 text-neutral-300">💡 Hướng dẫn chi tiết:</span>
-                {solution[currentStepIndex].explanation}
+              <div className="text-xs text-neutral-400 leading-relaxed bg-[#0b0f17]/30 p-4 rounded-xl border border-white/5 space-y-1">
+                <span className="font-bold block text-neutral-300">💡 Hướng dẫn chi tiết:</span>
+                <p>{solution[currentStepIndex].explanation}</p>
               </div>
 
               {/* Slide controls footer */}
@@ -692,13 +716,16 @@ export default function CubeSolver() {
                 </button>
 
                 {currentStepIndex < solution.length - 1 ? (
-                  <button
-                    onClick={() => handleStepIndexChange(currentStepIndex + 1)}
-                    className="flex items-center gap-2 py-2 px-4 text-xs font-semibold bg-blue-600 text-white rounded-xl hover:bg-blue-500 transition cursor-pointer"
-                  >
-                    <span>Giải Bước Kế</span>
-                    <ChevronRight size={14} />
-                  </button>
+                  submovePointer < solution[currentStepIndex].moves.length ? (
+                    <div className="text-xs text-neutral-400 font-medium italic animate-pulse">
+                      Xoay hết các lượt để hoàn thành bước...
+                    </div>
+                  ) : (
+                    <div className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 animate-bounce">
+                      <Sparkles size={13} className="text-emerald-400" />
+                      <span>Tự động chuyển bước kế tiếp...</span>
+                    </div>
+                  )
                 ) : (
                   <button
                     onClick={handleResetSolver}
@@ -913,13 +940,16 @@ export default function CubeSolver() {
               </button>
 
               {currentStepIndex < solution.length - 1 ? (
-                <button
-                  onClick={() => handleStepIndexChange(currentStepIndex + 1)}
-                  className="flex items-center gap-1.5 py-1.5 px-3.5 text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition cursor-pointer"
-                >
-                  <span>Mở Bước Tiếp</span>
-                  <ChevronRight size={13} />
-                </button>
+                submovePointer < solution[currentStepIndex].moves.length ? (
+                  <div className="text-xs text-neutral-400 font-medium italic animate-pulse">
+                    Xoay hết các lượt để hoàn thành bước...
+                  </div>
+                ) : (
+                  <div className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 animate-bounce">
+                    <Sparkles size={13} className="text-emerald-400" />
+                    <span>Tự động chuyển bước...</span>
+                  </div>
+                )
               ) : (
                 <button
                   onClick={() => {
