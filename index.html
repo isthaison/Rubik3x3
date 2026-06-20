@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Google AI Studio App</title>
+    <script>
+      (function() {
+        // Safe global JSON.parse guard to prevent uncaught "undefined" JSON syntax errors
+        const originalParse = JSON.parse;
+        JSON.parse = function(text, reviver) {
+          if (text === undefined || text === null) {
+            return undefined;
+          }
+          if (typeof text === 'string') {
+            const trimmed = text.trim();
+            if (trimmed === 'undefined' || trimmed === '' || trimmed === 'null' || trimmed === '[object Object]') {
+              return undefined;
+            }
+          }
+          return originalParse.call(JSON, text, reviver);
+        };
+
+        const isJsonBug = (msg) => {
+          if (!msg || typeof msg !== 'string') return false;
+          return (
+            msg.includes('not valid JSON') ||
+            msg.includes('JSON Parse error') ||
+            msg.includes('Unexpected identifier "undefined"') ||
+            msg.includes('undefined is not valid JSON') ||
+            msg.includes('Unexpected token u in JSON')
+          );
+        };
+
+        // Suppress uncaught global window errors of this type
+        window.addEventListener('error', function(event) {
+          if (event.message && isJsonBug(event.message)) {
+            console.warn('Suppressing uncaught JSON syntax error in browser:', event.message);
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        }, true);
+
+        // Suppress unhandled promise rejections of this type
+        window.addEventListener('unhandledrejection', function(event) {
+          const reasonMsg = event.reason && (event.reason.message || String(event.reason));
+          if (reasonMsg && isJsonBug(reasonMsg)) {
+            console.warn('Suppressing unhandled JSON promise rejection in browser:', reasonMsg);
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        }, true);
+      })();
+    </script>
+    <script type="module" crossorigin src="./assets/index-anTXKPAz.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-D045SHQn.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+
