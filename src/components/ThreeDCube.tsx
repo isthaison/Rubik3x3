@@ -30,6 +30,113 @@ export interface ThreeDCubeRef {
   resetCamera: () => void;
 }
 
+const RotationArrows = ({ move }: { move: string }) => {
+  const faceChar = move[0].toUpperCase();
+  const isPrime = move.includes("'");
+  const isDouble = move.includes("2");
+
+  let rx = 0, ry = 0, rz = 0;
+  let tx = 0, ty = 0, tz = 0;
+
+  if (faceChar === 'U') {
+    rx = 90; ty = -66;
+  } else if (faceChar === 'D') {
+    rx = -90; ty = 66;
+  } else if (faceChar === 'F') {
+    tz = 66;
+  } else if (faceChar === 'B') {
+    ry = 180; tz = -66;
+  } else if (faceChar === 'L') {
+    ry = -90; tx = -66;
+  } else if (faceChar === 'R') {
+    ry = 90; tx = 66;
+  } else {
+    return null;
+  }
+  
+  return (
+    <div 
+      className="absolute left-1/2 top-1/2 pointer-events-none z-50 transform-gpu"
+      style={{
+         transform: `translate3d(${tx}px, ${ty}px, ${tz}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`,
+         transformStyle: 'preserve-3d'
+      }}
+    >
+      {/* 4 Side Edge Arrow Flaps */}
+      {[0, 1, 2, 3].map(i => (
+         <div
+           key={`flap-${i}`}
+           style={{
+             position: 'absolute',
+             transform: `rotateZ(${i * 90}deg) translateY(-94px) rotateX(90deg)`,
+             width: '160px',
+             height: '46px',
+             transformStyle: 'preserve-3d'
+           }}
+           className="flex items-center justify-center -ml-[80px] -mt-[23px] opacity-100"
+         >
+            <div className="relative w-full h-full flex items-center justify-center">
+               <div className={`h-[8px] w-[80%] rounded-full shadow-[0_0_15px_currentColor] relative ${isDouble ? 'bg-amber-400 text-amber-400' : 'bg-cyan-400 text-cyan-400'} ${isDouble ? 'animate-pulse' : 'animate-pulse'}`}>
+                  {(!isPrime || isDouble) && (
+                     <div className="absolute top-1/2 -mt-[11px] -right-2.5 w-0 h-0 border-t-[11px] border-t-transparent border-b-[11px] border-b-transparent border-l-[16px] border-l-current" />
+                  )}
+                  {(isPrime || isDouble) && (
+                     <div className="absolute top-1/2 -mt-[11px] -left-2.5 rotate-180 w-0 h-0 border-t-[11px] border-t-transparent border-b-[11px] border-b-transparent border-l-[16px] border-l-current" />
+                  )}
+               </div>
+            </div>
+         </div>
+      ))}
+      
+      {/* 1 Front Face Circular Arrow Overlay */}
+      <div 
+        style={{
+          position: 'absolute',
+          transform: `translateZ(96px)`,
+          width: '180px',
+          height: '180px',
+          transformStyle: 'preserve-3d'
+        }}
+        className="flex items-center justify-center -ml-[90px] -mt-[90px] opacity-90"
+      >
+        <svg 
+          viewBox="-10 -10 120 120" 
+          className={`w-full h-full drop-shadow-[0_0_15px_currentColor] ${isDouble ? 'text-amber-400' : 'text-cyan-400'} ${isDouble ? 'animate-spin-cw' : isPrime ? 'animate-spin-ccw' : 'animate-spin-cw'}`}
+          style={{ animationDuration: isDouble ? '1.5s' : '2.2s' }}
+        >
+          <defs>
+             <linearGradient id="arrowCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+               <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.95" />
+               <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.5" />
+             </linearGradient>
+             <linearGradient id="arrowAmber" x1="0%" y1="0%" x2="100%" y2="100%">
+               <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.95" />
+               <stop offset="100%" stopColor="#ef4444" stopOpacity="0.5" />
+             </linearGradient>
+          </defs>
+          {isDouble ? (
+            <>
+              <circle cx="50" cy="50" r="44" stroke="url(#arrowAmber)" strokeWidth="8" strokeDasharray="90 48 90 48" fill="none" strokeLinecap="round" />
+              <path d="M 40 -2 L 52 6 L 40 14" fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M 60 102 L 48 94 L 60 86" fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+            </>
+          ) : isPrime ? (
+            <>
+              <path d="M 50 6 A 44 44 0 1 0 94 50" stroke="url(#arrowCyan)" strokeWidth="8" fill="none" strokeLinecap="round" />
+              <path d="M 60 -4 L 48 6 L 60 16" fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+            </>
+          ) : (
+            <>
+              <path d="M 50 6 A 44 44 0 1 1 6 50" stroke="url(#arrowCyan)" strokeWidth="8" fill="none" strokeLinecap="round" />
+              <path d="M 40 -4 L 52 6 L 40 16" fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+            </>
+          )}
+        </svg>
+      </div>
+    </div>
+  );
+};
+
 const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
   state,
   onMove,
@@ -476,6 +583,11 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
             }}
             className="w-48 h-48 relative transition-transform duration-300"
           >
+            {/* 3D Rotation Arrows Overlay */}
+            {currentMoveToExecute && (
+               <RotationArrows move={currentMoveToExecute} />
+            )}
+
             {/* 26 Individual cubies styled via absolute 3D position */}
             {cubies.map(({ cx, cy, cz }) => {
               const colors = getCubieColors(cx, cy, cz, localState);
@@ -630,48 +742,6 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
                             }`}
                             title={`Mặt ${faceName} ô số ${(stickerIdx ?? 0) + 1}`}
                           />
-                        )}
-
-                        {/* 3D Edge Arrows overlay on center sticker of rotating face */}
-                        {isCenterOfRotatingFace && currentMoveToExecute && (
-                          <div className="absolute left-1/2 top-1/2 pointer-events-none z-40" style={{ transformStyle: 'preserve-3d' }}>
-                            {[
-                              // Top Flap
-                              { tx: 0, ty: -66, tz: -22, rx: 90, ry: 0, rz: 0 },
-                              // Bottom Flap
-                              { tx: 0, ty: 66, tz: -22, rx: -90, ry: 0, rz: 180 },
-                              // Left Flap
-                              { tx: -66, ty: 0, tz: -22, rx: 0, ry: -90, rz: -90 },
-                              // Right Flap
-                              { tx: 66, ty: 0, tz: -22, rx: 0, ry: 90, rz: 90 }
-                            ].map((flap, idx) => (
-                              <div
-                                key={idx}
-                                style={{
-                                  transform: `translate(-50%, -50%) translateX(${flap.tx}px) translateY(${flap.ty}px) translateZ(${flap.tz}px) rotateX(${flap.rx}deg) rotateY(${flap.ry}deg) rotateZ(${flap.rz}deg)`,
-                                  width: '132px',
-                                  height: '44px',
-                                  transformStyle: 'preserve-3d'
-                                }}
-                                className="absolute flex items-center justify-center opacity-90"
-                              >
-                                <div className={`relative flex items-center justify-center w-full h-full ${
-                                  isDouble ? 'animate-pulse' : 'animate-pulse'
-                                }`}>
-                                  <div className={`relative h-2 w-[85%] rounded-full shadow-[0_0_12px_currentColor] ${
-                                    isDouble ? 'bg-amber-500 text-amber-500' : 'bg-cyan-400 text-cyan-400'
-                                  }`}>
-                                    {(!isPrime || isDouble) && (
-                                      <div className="absolute top-1/2 -mt-2.5 -right-2 w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-l-[16px] border-l-current" />
-                                    )}
-                                    {(isPrime || isDouble) && (
-                                      <div className="absolute top-1/2 -mt-2.5 -left-2 rotate-180 w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-l-[16px] border-l-current" />
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
                         )}
                       </div>
                     );
