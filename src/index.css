@@ -18,12 +18,38 @@
   }
 }
 
+@keyframes spin-cw {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-ccw {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
 @utility animate-scan-bounce {
   animation: scan-bounce 3s linear infinite;
 }
 
 @utility animate-spin-slow {
   animation: spin-slow 12s linear infinite;
+}
+
+@utility animate-spin-cw {
+  animation: spin-cw 2.5s linear infinite;
+}
+
+@utility animate-spin-ccw {
+  animation: spin-ccw 2.5s linear infinite;
 }
 
 @utility backface-hidden {

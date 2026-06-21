@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { CubeState, CubeColor, FaceName, SolverStep } from '../types';
 import { getSolvedState, applyMove, applyMoves, getSolutionSteps, COLORS, generateScramble, isSolved } from '../utils/cubeEngine';
 import ThreeDCube from './ThreeDCube';
-import { HelpCircle, RefreshCw, Sparkles, CheckCircle2, ChevronLeft, ChevronRight, Play, Eye, Sliders, Palette, Video, Pause, Maximize, X } from 'lucide-react';
+import { HelpCircle, RefreshCw, Sparkles, CheckCircle2, ChevronLeft, ChevronRight, Play, Eye, Sliders, Palette, Video, Pause, Maximize, X, RotateCcw } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics';
 import CubeCameraScanner from './CubeCameraScanner';
 
@@ -417,61 +417,58 @@ export default function CubeSolver() {
     <div className="space-y-6">
       {/* Top Header Selector tabs */}
       {!solution ? (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             {/* Input workspace left: manual palette */}
-            <div className="lg:col-span-8 bg-neutral-950/30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/5 shadow-xl space-y-6">
+            <div className="lg:col-span-5 bg-neutral-950/30 p-3 sm:p-4 rounded-2xl border border-white/5 shadow-xl space-y-4">
               {/* Manual paint brush panel */}
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/5 pb-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                      <Palette className="text-blue-400" size={20} />
-                      <span>Chọn màu & Sơn lên lưới phẳng</span>
-                    </h3>
-                    <p className="text-xs text-neutral-400 mt-1">
-                      Tô màu thủ công trên sơ đồ dẹt 2D hoặc quét nhanh bằng camera thiết bị.
-                    </p>
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/5 pb-3">
+                  <div className="text-xs font-bold text-neutral-300 flex items-center gap-2">
+                    <Palette className="text-blue-400" size={16} />
+                    <span>Tô Màu Thủ Công</span>
                   </div>
                   <button
                     onClick={() => {
                       triggerHaptic(15);
                       setShowCameraScanner(true);
                     }}
-                    className="shrink-0 flex items-center justify-center gap-2 px-4.5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-blue-500/15 transition-all hover:scale-102 active:scale-95 cursor-pointer border border-blue-500/20"
+                    className="shrink-0 flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-[10px] uppercase tracking-wider transition-all cursor-pointer border border-blue-500/20"
                   >
                     <Video size={13} className="animate-pulse" />
-                    <span>Quét Bằng Camera AR</span>
+                    <span>Camera Quét Khối</span>
                   </button>
                 </div>
 
                   {/* Paint Brush Selector */}
                   <div className="bg-neutral-900/60 p-4 rounded-2xl border border-white/5">
-                    <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block mb-2.5">
-                      Chọn Màu Cọ (Brush Color):
-                    </span>
-                    <div className="flex flex-wrap items-center gap-3.5">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                        Bảng Màu (Brush):
+                      </span>
+                      <div className="text-[10px] font-semibold text-neutral-400">
+                        Đang chọn: <span className="text-blue-400 font-bold uppercase">{paintColor}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 bg-neutral-900/60 p-2 rounded-2xl border border-white/5 shadow-inner">
                       {(Object.keys(COLORS) as CubeColor[]).map((col) => (
                         <button
                           key={col}
                           id={`brush-${col}`}
                           onClick={() => setPaintColor(col)}
                           style={{ backgroundColor: COLORS[col] }}
-                          className={`w-10 h-10 rounded-xl relative transition-transform cursor-pointer hover:scale-105 active:scale-90 border-2 ${
-                            paintColor === col ? 'border-blue-500 scale-110 shadow-lg shadow-blue-500/15' : 'border-neutral-950/45'
+                          className={`flex-1 aspect-square max-h-12 rounded-xl relative transition-all cursor-pointer hover:scale-105 active:scale-95 border-2 ${
+                            paintColor === col ? 'border-white scale-110 shadow-lg shadow-black/50 z-10' : 'border-neutral-950/40 opacity-90'
                           }`}
                           title={`Tô màu ${col}`}
                         >
                           {paintColor === col && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-xl">
-                              <span className="text-xs text-white font-bold font-mono">✓</span>
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded-xl">
+                              <span className="text-[10px] text-white font-black drop-shadow-md">✓</span>
                             </div>
                           )}
                         </button>
                       ))}
-                      <div className="text-xs font-semibold text-neutral-400 ml-2">
-                        Đang tô: <span className="text-blue-400 font-bold uppercase">{paintColor}</span>
-                      </div>
                     </div>
                   </div>
 
@@ -503,29 +500,29 @@ export default function CubeSolver() {
                 </div>
 
               {/* Launcher bar buttons */}
-              <div className="flex flex-col md:flex-row items-center gap-3.5 pt-4 border-t border-white/5 justify-between">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-4 border-t border-white/5">
                 <button
                   id="btn-scramble-paint"
                   onClick={handleRandomScrambleManualInput}
-                  className="w-full md:w-auto px-4 py-2 text-xs font-bold text-neutral-300 hover:text-white bg-neutral-900 rounded-xl border border-white/10 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  className="w-full px-5 py-3.5 text-[11px] uppercase tracking-widest font-bold text-neutral-300 hover:text-white bg-neutral-900 rounded-xl border border-white/10 transition-all cursor-pointer flex items-center justify-center gap-2 hover:bg-neutral-800"
                 >
-                  <RefreshCw size={13} />
+                  <RefreshCw size={14} />
                   <span>Xáo trộn ngẫu nhiên</span>
                 </button>
 
                 <button
                   id="btn-solve-now"
                   onClick={solveCubeState}
-                  className="w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-xl text-xs uppercase tracking-widest shadow-xl shadow-blue-600/10 transition-all hover:scale-102 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full px-5 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-xl text-[11px] uppercase tracking-widest shadow-xl shadow-blue-600/10 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer flex items-center justify-center gap-2 border border-blue-500/50"
                 >
-                  <CheckCircle2 size={14} />
-                  <span>Giải mã khối Rubik ngay</span>
+                  <CheckCircle2 size={15} />
+                  <span>Giải mã Rubik ngay</span>
                 </button>
               </div>
             </div>
 
             {/* Layout right display: shows current 3D cube state */}
-            <div className="lg:col-span-4 bg-neutral-950/30 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/5 text-center flex flex-col items-center">
+            <div className="lg:col-span-7 bg-neutral-950/30 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/5 text-center flex flex-col items-center min-h-[350px] sm:min-h-[400px] lg:min-h-[480px]">
               <span className="text-xs font-extrabold text-neutral-400 block uppercase tracking-wide mb-3">Mô Hình 3D Hiện Tại</span>
               
               {/* Toggle Mode Segmented Control */}
@@ -577,34 +574,30 @@ export default function CubeSolver() {
         </div>
       ) : (
         // ACTIVE SOLVER STEP LAYOUT SCREEN
-        <div className="space-y-6">
-          <div className="flex items-center justify-between border-b border-white/5 pb-4">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between border-b border-white/5 pb-2">
             <button
               onClick={handleResetSolver}
-              className="px-4 py-1.5 bg-neutral-800 text-zinc-300 hover:text-white rounded-xl border border-white/10 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
+              className="px-4 py-1.5 bg-neutral-800 text-zinc-300 hover:text-white rounded-xl border border-white/10 text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer"
             >
               <ChevronLeft size={14} />
-              <span>Nhập lại trạng thái mới</span>
+              <span>Nhập trạng thái mới</span>
             </button>
-            <div className="text-right">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">LỘ TRÌNH TỐI ƯU</span>
-              <span className="text-xs font-semibold text-blue-400">7 bước Layer-by-layer CFOP dễ hiểu</span>
-            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             {/* Active Stage tutorial text info */}
-            <div className="lg:col-span-7 bg-neutral-950/40 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/5 shadow-2xl space-y-6">
-              <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                <span className="text-xs font-bold text-neutral-400 bg-neutral-900 border border-white/5 px-3.5 py-1 rounded-full uppercase tracking-widest">
-                  KOCIEMBA SOLVER
+            <div className="lg:col-span-4 bg-neutral-950/40 p-4 rounded-2xl border border-white/5 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                <span className="text-[10px] font-bold text-neutral-400 bg-neutral-900 border border-white/5 px-2.5 py-1 rounded-full uppercase tracking-widest">
+                  GIAI ĐOẠN {currentStepIndex + 1}
                 </span>
-                <span className="text-xs font-mono text-neutral-500">{solution[currentStepIndex].moves.length} Bước</span>
+                <span className="text-[11px] font-mono font-bold text-neutral-500">{solution[currentStepIndex].moves.length} Bước</span>
               </div>
 
               {/* Recalculated notification banner */}
               {recalculatedNotification && (
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-xs text-amber-300 font-medium flex items-start gap-2.5 transition-all duration-300">
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-[11px] text-amber-300 font-medium flex items-start gap-2.5 transition-all duration-300">
                   <Sparkles size={14} className="text-amber-400 shrink-0 mt-0.5 animate-pulse" />
                   <div>
                     <span className="text-[10px] uppercase font-bold tracking-wider text-amber-400 block mb-0.5">Xoay khác hướng dẫn - Cập nhật tự động:</span>
@@ -614,16 +607,10 @@ export default function CubeSolver() {
               )}
 
               {/* Core Step values */}
-              <div className="space-y-3.5">
-                <h3 className="text-lg font-bold text-white border-l-4 border-blue-500 pl-3">
+              <div className="space-y-2 text-left">
+                <h3 className="text-sm font-extrabold text-white border-l-2 border-blue-500 pl-2">
                   {solution[currentStepIndex].title}
                 </h3>
-                <p className="text-xs font-semibold text-zinc-400 italic">
-                  {solution[currentStepIndex].subtitle}
-                </p>
-                <div className="p-4 bg-neutral-900/60 border border-white/5 rounded-2xl text-neutral-300 text-sm leading-relaxed">
-                  {solution[currentStepIndex].description}
-                </div>
               </div>
 
               {/* Step algorithms and action player */}
@@ -681,80 +668,85 @@ export default function CubeSolver() {
                   </div>
 
                   {/* Interactive Submove controller & Autoplay Simulation Dashboard */}
-                  <div className="space-y-3.5 pt-3.5 border-t border-blue-500/10">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex items-center gap-2">
+                  <div className="space-y-3 pt-3 border-t border-blue-500/10">
+                    <div className="flex flex-col gap-3">
+                      {/* Central Playback Controls */}
+                      <div className="flex items-center justify-between bg-neutral-900/50 p-1.5 rounded-2xl border border-white/5">
+                        <button
+                          onClick={handleSubmovePrev}
+                          disabled={submovePointer === 0 || isPlayingAuto}
+                          className="p-2 bg-transparent hover:bg-white/5 disabled:pointer-events-none disabled:opacity-30 text-neutral-400 hover:text-white transition-colors cursor-pointer rounded-xl flex items-center justify-center shrink-0"
+                          title="Lùi 1 lượt xoay"
+                        >
+                          <ChevronLeft size={20} />
+                        </button>
+                        
                         <button
                           onClick={() => {
                             triggerHaptic(15);
                             if (submovePointer >= solution[currentStepIndex].moves.length) {
-                              // Auto reset to begin first
                               resetCurrentStepToBeginning();
                             }
                             setIsPlayingAuto(!isPlayingAuto);
                           }}
-                          className={`py-1.5 px-3.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                          className={`flex-1 py-2 px-4 mx-2 rounded-xl text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
                             isPlayingAuto
-                              ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-md animate-pulse'
+                              ? 'bg-amber-600/20 hover:bg-amber-600/30 text-amber-500 shadow-md animate-pulse border border-amber-600/50'
                               : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md'
                           }`}
                         >
-                          {isPlayingAuto ? <Pause size={13} /> : <Play size={13} />}
+                          {isPlayingAuto ? <Pause size={16} /> : <Play fill="currentColor" size={16} />}
                           <span>{isPlayingAuto ? 'Tạm Dừng' : 'Mô Phỏng 3D Tự Động'}</span>
                         </button>
 
+                        <button
+                          onClick={handleSubmoveNext}
+                          disabled={submovePointer >= solution[currentStepIndex].moves.length || isPlayingAuto}
+                          className="p-2 bg-transparent hover:bg-white/5 disabled:pointer-events-none disabled:opacity-30 text-neutral-400 hover:text-white transition-colors cursor-pointer rounded-xl flex items-center justify-center shrink-0"
+                          title="Xoay nháp tiếp"
+                        >
+                          <ChevronRight size={20} />
+                        </button>
+                      </div>
+
+                      {/* Secondary Helpers: Reset & Speed */}
+                      <div className="flex items-center justify-between px-1">
                         <button
                           onClick={() => {
                             triggerHaptic(10);
                             resetCurrentStepToBeginning();
                           }}
-                          className="py-1.5 px-3 bg-neutral-900 border border-white/5 hover:border-white/10 text-xs font-semibold text-neutral-400 rounded-xl transition"
+                          className="text-xs font-semibold text-neutral-500 hover:text-neutral-300 transition flex items-center gap-1 cursor-pointer"
                         >
-                          Reset bước xoay
+                          <RotateCcw size={12} />
+                          <span>Chơi lại bước này</span>
                         </button>
-                      </div>
 
-                      {/* Speed selector controls */}
-                      <div className="flex items-center gap-1 bg-neutral-900/80 p-0.5 rounded-lg border border-white/5 self-end">
-                        <button
-                          onClick={() => { triggerHaptic(8); setAutoPlaySpeed(1800); }}
-                          className={`px-2 py-0.5 text-[10px] font-bold rounded ${autoPlaySpeed === 1800 ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-white'}`}
-                          title="Tốc độ chậm để dễ bắt chước"
-                        >
-                          Chậm
-                        </button>
-                        <button
-                          onClick={() => { triggerHaptic(8); setAutoPlaySpeed(1200); }}
-                          className={`px-2 py-0.5 text-[10px] font-bold rounded ${autoPlaySpeed === 1200 ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-white'}`}
-                          title="Tốc độ tiêu chuẩn"
-                        >
-                          Vừa
-                        </button>
-                        <button
-                          onClick={() => { triggerHaptic(8); setAutoPlaySpeed(600); }}
-                          className={`px-2 py-0.5 text-[10px] font-bold rounded ${autoPlaySpeed === 600 ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-white'}`}
-                          title="Tốc độ nhanh"
-                        >
-                          Nhanh
-                        </button>
+                        {/* Speed selector controls */}
+                        <div className="flex items-center gap-1 bg-neutral-900/60 p-0.5 rounded-lg border border-white/5">
+                          <button
+                            onClick={() => { triggerHaptic(8); setAutoPlaySpeed(1800); }}
+                            className={`px-2 py-1 text-[10px] font-bold rounded-md transition-colors ${autoPlaySpeed === 1800 ? 'bg-blue-600 text-white' : 'text-neutral-500 hover:text-neutral-300'}`}
+                            title="Tốc độ chậm để dễ bắt chước"
+                          >
+                            Chậm
+                          </button>
+                          <button
+                            onClick={() => { triggerHaptic(8); setAutoPlaySpeed(1200); }}
+                            className={`px-2 py-1 text-[10px] font-bold rounded-md transition-colors ${autoPlaySpeed === 1200 ? 'bg-blue-600 text-white' : 'text-neutral-500 hover:text-neutral-300'}`}
+                            title="Tốc độ tiêu chuẩn"
+                          >
+                            Vừa
+                          </button>
+                          <button
+                            onClick={() => { triggerHaptic(8); setAutoPlaySpeed(600); }}
+                            className={`px-2 py-1 text-[10px] font-bold rounded-md transition-colors ${autoPlaySpeed === 600 ? 'bg-blue-600 text-white' : 'text-neutral-500 hover:text-neutral-300'}`}
+                            title="Tốc độ nhanh"
+                          >
+                            Nhanh
+                          </button>
+                        </div>
                       </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 pt-2 border-t border-white/5">
-                      <button
-                        onClick={handleSubmovePrev}
-                        disabled={submovePointer === 0 || isPlayingAuto}
-                        className="py-1.5 px-3 bg-[#0D1117] hover:bg-slate-800 disabled:pointer-events-none disabled:opacity-40 text-xs font-semibold rounded-lg text-slate-300 border border-slate-800 cursor-pointer flex items-center gap-1"
-                      >
-                        <span>Lùi 1 lượt xoay</span>
-                      </button>
-                      <button
-                        onClick={handleSubmoveNext}
-                        disabled={submovePointer >= solution[currentStepIndex].moves.length || isPlayingAuto}
-                        className="py-1.5 px-4 bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-800 disabled:text-neutral-500 disabled:pointer-events-none text-xs font-bold rounded-lg text-white shadow-md cursor-pointer flex items-center gap-1"
-                      >
-                        <span>Xoay nháp tiếp</span>
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -763,12 +755,6 @@ export default function CubeSolver() {
                   Bước này đã được tối ưu hóa sẵn từ khâu phân tích!
                 </div>
               )}
-
-              {/* Explanatory notes */}
-              <div className="text-xs text-neutral-400 leading-relaxed bg-[#0b0f17]/30 p-4 rounded-xl border border-white/5 space-y-1">
-                <span className="font-bold block text-neutral-300">💡 Hướng dẫn chi tiết:</span>
-                <p>{solution[currentStepIndex].explanation}</p>
-              </div>
 
               {/* Slide controls footer */}
               <div className="flex items-center justify-between border-t border-white/5 pt-4">
@@ -805,17 +791,15 @@ export default function CubeSolver() {
             </div>
 
             {/* Target 3D Cube visualizer display right side */}
-            <div className="lg:col-span-5 bg-neutral-950/40 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/5 flex flex-col items-center w-full">
-              <div className="w-full flex items-center justify-between mb-3 border-b border-white/5 pb-2">
-                <span className="text-xs font-bold text-neutral-400 uppercase tracking-widest block text-left">Mô phỏng 3D bước giải</span>
-                
+            <div className="lg:col-span-8 bg-neutral-950/40 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/5 flex flex-col items-center w-full min-h-[350px] sm:min-h-[450px] lg:min-h-[500px]">
+              <div className="w-full flex items-end justify-end mb-2">
                 {/* Full Screen mode trigger */}
                 <button
                   onClick={() => {
                     triggerHaptic(20);
                     setIsFullScreen(true);
                   }}
-                  className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg transition"
+                  className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg border border-blue-500/20 transition cursor-pointer"
                 >
                   <Maximize size={12} />
                   <span>Toàn màn hình</span>
@@ -829,6 +813,7 @@ export default function CubeSolver() {
                 onMove={(move) => handleSolverInteractiveMove(move)}
                 minimal={true}
                 currentMoveToExecute={currentMoveToExecute}
+                hideStepOverlay={true}
               />
             </div>
           </div>
@@ -875,36 +860,36 @@ export default function CubeSolver() {
           </div>
 
           {/* Bottom consolidated overlay: Translucent high-contrast real-time subtitle card + control keys */}
-          <div className="w-full max-w-2xl bg-neutral-950/80 backdrop-blur-md rounded-2xl border border-white/10 p-4 sm:p-5 space-y-4 shadow-2xl">
+          <div className="w-full max-w-xl bg-neutral-950/80 backdrop-blur-md rounded-2xl border border-white/10 p-2.5 space-y-2 shadow-2xl">
             {/* Recalculated notification banner inside FullScreen */}
             {recalculatedNotification && (
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-xs text-amber-300 font-medium flex items-start gap-2 transition-all">
-                <Sparkles size={13} className="text-amber-400 shrink-0 mt-0.5 animate-pulse" />
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-2 text-[10px] text-amber-300 font-medium flex items-start gap-2 transition-all">
+                <Sparkles size={12} className="text-amber-400 shrink-0 mt-0.5 animate-pulse" />
                 <div className="text-left">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-amber-400 block mb-0.5">Xoay khác hướng dẫn - Cập nhật tự động:</span>
+                  <span className="uppercase font-bold tracking-wider text-amber-400 block">Xoay khác hướng dẫn - Cập nhật tự động:</span>
                   <span>{recalculatedNotification}</span>
                 </div>
               </div>
             )}
 
             {/* Giant real-time subtitle caption display */}
-            <div className="flex items-center gap-4 border-b border-white/5 pb-3">
+            <div className="flex items-center gap-3 border-b border-white/5 pb-2">
               {pendingDoubleMove && currentMoveToExecute ? (
-                <div className="w-12 h-12 rounded-xl bg-amber-600 flex items-center justify-center font-mono font-black text-2xl text-white shadow-xl shrink-0 animate-pulse">
+                <div className="w-10 h-10 rounded-xl bg-amber-600 flex items-center justify-center font-mono font-black text-xl text-white shadow-lg shrink-0 animate-pulse">
                   {pendingDoubleMove}
                 </div>
               ) : currentMoveToExecute ? (
-                <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center font-mono font-black text-2xl text-white shadow-xl shrink-0 animate-bounce animate-duration-1000">
+                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-mono font-black text-xl text-white shadow-lg shrink-0 animate-bounce animate-duration-1000">
                   {currentMoveToExecute}
                 </div>
               ) : (
-                <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center font-bold text-lg text-white shadow-xl shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center font-bold text-lg text-white shadow-lg shrink-0">
                   ✓
                 </div>
               )}
               
               <div className="min-w-0 flex-1 text-left">
-                <p className="text-sm sm:text-base font-extrabold text-white leading-snug">
+                <p className="text-xs sm:text-sm font-extrabold text-white leading-snug">
                   {pendingDoubleMove && currentMoveToExecute ? (
                     <span className="text-amber-300">
                       Gần xong! Hãy xoay thêm 1 lượt <strong>[ {pendingDoubleMove} ]</strong> để hoàn thành xoay kép [ {currentMoveToExecute} ]
@@ -918,36 +903,18 @@ export default function CubeSolver() {
               </div>
             </div>
 
-            {/* Real-time sequential formula progress chain (e.g. R -> L -> U) */}
-            <div className="bg-neutral-900/60 p-3 rounded-xl border border-white/5">
-              <div className="flex flex-wrap items-center gap-1.5 font-mono justify-center sm:justify-start">
-                {solution[currentStepIndex].moves.map((mv, idx) => (
-                  <React.Fragment key={idx}>
-                    <span
-                      className={`px-2 py-0.5 font-mono font-extrabold text-xs sm:text-sm rounded-md border transition-all ${
-                        idx === submovePointer
-                          ? 'bg-blue-600 text-white border-blue-400 scale-110 shadow-md ring-2 ring-blue-500/25'
-                          : idx < submovePointer
-                          ? 'bg-neutral-950 text-neutral-500 border-neutral-900 line-through'
-                          : 'bg-neutral-950 text-neutral-300 border-white/5'
-                      }`}
-                    >
-                      {mv}
-                    </span>
-                    {idx < solution[currentStepIndex].moves.length - 1 && (
-                      <span className={`text-[10px] font-bold ${idx < submovePointer ? 'text-zinc-650' : 'text-blue-500/50'}`}>
-                        ➔
-                      </span>
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
-
             {/* Quick compact control dashboard inside full screen */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-              {/* Simulation Playback buttons */}
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col items-center justify-center pt-1">
+              <div className="flex items-center justify-center bg-[#0d1117] p-1.5 rounded-2xl border border-white/5 w-full max-w-sm shrink-0 shadow-2xl">
+                <button
+                  onClick={handleSubmovePrev}
+                  disabled={submovePointer === 0 || isPlayingAuto}
+                  className="p-3 bg-transparent hover:bg-white/5 disabled:pointer-events-none disabled:opacity-30 text-neutral-400 hover:text-white transition-colors cursor-pointer rounded-xl flex items-center justify-center shrink-0"
+                  title="Lùi 1 lượt xoay"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                
                 <button
                   onClick={() => {
                     triggerHaptic(15);
@@ -956,51 +923,42 @@ export default function CubeSolver() {
                     }
                     setIsPlayingAuto(!isPlayingAuto);
                   }}
-                  className={`py-2 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`flex-1 py-3 px-4 mx-3 rounded-xl text-sm font-extrabold transition-all cursor-pointer flex items-center justify-center gap-2 ${
                     isPlayingAuto
-                      ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-md animate-pulse'
+                      ? 'bg-amber-600/20 hover:bg-amber-600/30 text-amber-500 shadow-md animate-pulse border border-amber-600/50'
                       : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md'
                   }`}
                 >
-                  {isPlayingAuto ? <Pause size={13} /> : <Play size={13} />}
+                  {isPlayingAuto ? <Pause size={18} /> : <Play fill="currentColor" size={18} />}
                   <span>{isPlayingAuto ? 'Tạm Dừng' : 'Mô Phỏng Tự Động'}</span>
                 </button>
 
+                <button
+                  onClick={handleSubmoveNext}
+                  disabled={submovePointer >= solution[currentStepIndex].moves.length || isPlayingAuto}
+                  className="p-3 bg-transparent hover:bg-white/5 disabled:pointer-events-none disabled:opacity-30 text-neutral-400 hover:text-white transition-colors cursor-pointer rounded-xl flex items-center justify-center shrink-0"
+                  title="Xoay nháp tiếp"
+                >
+                  <ChevronRight size={24} />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between w-full max-w-sm px-2 pt-3">
                 <button
                   onClick={() => {
                     triggerHaptic(10);
                     resetCurrentStepToBeginning();
                   }}
-                  className="py-2 px-3 bg-neutral-900 border border-white/5 hover:border-white/10 text-xs font-semibold text-neutral-400 rounded-xl transition cursor-pointer"
+                  className="text-[11px] font-semibold text-neutral-500 hover:text-neutral-300 transition flex items-center gap-1.5 cursor-pointer"
                 >
-                  Reset lượt
-                </button>
-              </div>
-
-              {/* Progress Formula bar indicator & step navigation */}
-              <div className="flex items-center gap-2 self-end sm:self-center">
-                <button
-                  onClick={handleSubmovePrev}
-                  disabled={submovePointer === 0 || isPlayingAuto}
-                  className="p-2 bg-neutral-900 border border-white/5 disabled:opacity-30 disabled:pointer-events-none hover:bg-neutral-800 rounded-xl text-xs font-bold text-neutral-400 transition cursor-pointer"
-                  title="Lùi 1 lượt"
-                >
-                  Lùi lượt
+                  <RotateCcw size={13} />
+                  <span>Chơi lại bước</span>
                 </button>
 
                 {/* Counter indicator */}
-                <span className="text-xs font-mono font-bold text-neutral-400 px-2.5">
+                <span className="text-[11px] font-mono font-bold text-neutral-500 bg-black/50 px-2 py-0.5 rounded border border-white/5">
                   Lượt {submovePointer} / {solution[currentStepIndex].moves.length}
                 </span>
-
-                <button
-                  onClick={handleSubmoveNext}
-                  disabled={submovePointer >= solution[currentStepIndex].moves.length || isPlayingAuto}
-                  className="p-3 py-2 px-4 bg-blue-600 disabled:bg-neutral-900 disabled:text-neutral-600 disabled:border-transparent disabled:pointer-events-none hover:bg-blue-500 rounded-xl text-xs font-extrabold text-white shadow transition cursor-pointer"
-                  title="Xoay lượt tiếp"
-                >
-                  Xoay tiếp
-                </button>
               </div>
             </div>
 

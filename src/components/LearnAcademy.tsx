@@ -206,14 +206,13 @@ export default function LearnAcademy() {
           </div>
 
           {/* Combined Lesson screen with dynamic visualizer layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Lesson details container */}
-            <div className="space-y-6 bg-neutral-950/30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/5 shadow-xl">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-neutral-400 uppercase tracking-widest bg-neutral-900 border border-white/5 px-3 py-1 rounded-full">
+            <div className="lg:col-span-5 space-y-5 bg-neutral-950/30 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/5 shadow-xl">
+              <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest bg-neutral-900 border border-white/5 px-2.5 py-1 rounded-full">
                   Phần {currentStepIndex + 1} / {selectedLesson.steps.length}
                 </span>
-                <span className="text-xs font-mono text-neutral-500">Ấn nút mũi tên bên dưới để sang phần mới</span>
               </div>
 
               {/* Progress bar */}
@@ -288,17 +287,13 @@ export default function LearnAcademy() {
             </div>
 
             {/* Simulated 3D sandbox right side */}
-            <div className="space-y-4">
-              <div className="bg-neutral-950/30 p-4 rounded-3xl border border-white/5 flex flex-col items-center">
-                <span className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-3 text-center block">Sân Luyện Tập Thao Tác</span>
+            <div className="lg:col-span-7 space-y-4">
+              <div className="bg-neutral-950/30 p-4 rounded-3xl border border-white/5 flex flex-col items-center min-h-[350px] sm:min-h-[400px] lg:min-h-[480px]">
                 <ThreeDCube
                   state={academyCubeState}
                   onMove={handleInteractiveMove}
                   interactive={true}
                 />
-                <p className="text-[11px] text-neutral-500 text-center mt-3 max-w-[280px]">
-                  Bạn có thể kéo thả để xoay camera xem từ mọi góc hoặc bấm các phím xoay tắt ở dưới để học cách giải.
-                </p>
               </div>
             </div>
           </div>

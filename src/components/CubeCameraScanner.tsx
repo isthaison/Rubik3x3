@@ -585,10 +585,22 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
   const validation = scanValidationMessage();
 
   return (
-    <div className="fixed inset-0 bg-[#06080d]/98 backdrop-blur-2xl z-50 flex flex-col lg:grid lg:grid-cols-12 overflow-y-auto font-sans text-slate-100">
-      
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-[#06080d]/80 backdrop-blur-md">
+      <div className="w-full max-w-[1200px] max-h-[95vh] sm:max-h-[85vh] bg-[#0c0e14] border border-white/10 rounded-2xl scrollbar-hide shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col lg:grid lg:grid-cols-12 overflow-y-auto font-sans text-slate-100 relative">
+        {/* Modal Header for small screens - Floating close button */}
+        <button
+          onClick={() => {
+            triggerHaptic(10);
+            stopCamera();
+            onClose();
+          }}
+          className="absolute top-4 right-4 z-50 p-2 bg-black/50 hover:bg-white/10 backdrop-blur-md rounded-full text-neutral-400 hover:text-white transition cursor-pointer lg:hidden"
+        >
+          <X size={20} />
+        </button>
+
       {/* LEFT COLUMN: Camera Scanner & Visual Target System (7 cols) */}
-      <div className="col-span-12 lg:col-span-7 flex flex-col justify-between border-r border-white/5 p-4 sm:p-6 min-h-[550px] lg:min-h-screen bg-neutral-950/20">
+      <div className="col-span-12 lg:col-span-7 flex flex-col justify-between border-r border-white/5 p-4 sm:p-6 min-h-[400px] bg-neutral-950/20">
         
         {/* Header toolbar */}
         <div className="flex items-center justify-between pb-3.5 border-b border-white/5">
@@ -636,41 +648,26 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
           </div>
         </div>
 
-        {/* Big visual instructions helper banner */}
-        <div className="bg-gradient-to-r from-blue-950/20 via-indigo-950/10 to-indigo-950/20 border border-blue-500/25 p-4 rounded-2xl my-3 space-y-1.5 text-center sm:text-left shadow-lg relative overflow-hidden">
-          <div className="absolute right-0 top-0 -mt-2 -mr-2 w-16 h-16 bg-blue-500/10 rounded-full blur-xl pointer-events-none" />
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest block animate-pulse">
-                {aiDetectedFace === activeFace ? '✨ CAMERA AI ĐÃ PHÁT HIỆN MẶT' : '🔍 HƯỚNG MÁY QUÉT'}
-              </span>
-              {aiDetectedFace === activeFace && (
-                <span className="text-[9px] bg-cyan-500/20 text-cyan-300 font-bold px-1.5 py-0.5 rounded border border-cyan-500/35 font-mono">
-                  KHỚP MÀU TÂM
+        <div className="bg-neutral-900/40 border border-white/5 p-3 rounded-2xl my-2 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+           <div className="space-y-1 text-center sm:text-left">
+             <div className="flex items-center gap-2 justify-center sm:justify-start">
+                <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest block">
+                  {aiDetectedFace === activeFace ? '✨ Đã Khóa Mục Tiêu' : '🔍 Hướng Camera Vào'}
                 </span>
-              )}
-            </div>
-            <span className="text-[10px] bg-blue-500/15 text-blue-300 font-bold px-2 py-0.5 rounded-full border border-blue-500/10 max-w-max self-center sm:self-auto">
-              {scannedFacesInSession.has(activeFace) ? '✓ Đã cập nhật mặt này' : '⏳ Chờ ghi nhận màu'}
-            </span>
-          </div>
-          <h4 className="text-lg font-black text-white flex items-center gap-1.5 justify-center sm:justify-start">
-            {FACE_LABELS[activeFace]}
-          </h4>
-          <p className="text-xs sm:text-sm font-bold text-slate-300 leading-snug">
-            {aiDetectedFace === activeFace 
-              ? `AI phát hiện tâm màu ${activeFace === 'U' ? 'Trắng' : activeFace === 'D' ? 'Vàng' : activeFace === 'F' ? 'Xanh Lục' : activeFace === 'B' ? 'Xanh Lam' : activeFace === 'L' ? 'Cam' : 'Đỏ'}. Hãy Giữ nguyên khối để AI tự động lưu màu!`
-              : `Hướng ô TÂM của mặt này vào đúng khung hình camera. AI sẽ tự động phân tách và khóa mặt mục tiêu.`}
-          </p>
-          <div className="mt-1.5 pt-1.5 border-t border-white/5 flex flex-wrap gap-2 items-center justify-center sm:justify-start text-[10px] text-slate-400">
-            <span className="font-semibold text-sky-400">Tiến độ phiên:</span>
-            <span>Đã quét xong <strong className="text-emerald-400 font-bold">{scannedFacesInSession.size}</strong>/6 mặt.</span>
-            {scannedFacesInSession.size < 6 && (
-              <span className="text-[9px] bg-amber-500/10 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/10">
-                Gợi ý: Hãy xoay qua {6 - scannedFacesInSession.size} mặt còn lại
-              </span>
-            )}
-          </div>
+             </div>
+             <h4 className="text-lg font-black text-white">
+                {FACE_LABELS[activeFace]}
+             </h4>
+           </div>
+           
+           <div className="flex flex-col items-center sm:items-end gap-1.5">
+             <span className="text-[10px] font-medium px-2 py-0.5 rounded-full border border-white/5 bg-black/20 text-blue-300">
+               {scannedFacesInSession.has(activeFace) ? '✓ Đã cập nhật' : '⏳ Chờ ghi nhận'}
+             </span>
+             <span className="text-[10px] font-semibold text-neutral-400">
+                Tiến độ: <strong className="text-emerald-400">{scannedFacesInSession.size}</strong>/6
+             </span>
+           </div>
         </div>
 
         {/* Live video viewport workspace */}
@@ -981,6 +978,7 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

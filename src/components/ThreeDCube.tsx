@@ -451,21 +451,6 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
           </div>
         )}
 
-        {/* Step-by-Step Algorithm Move Highlight Overlay */}
-        {currentMoveToExecute && !hideStepOverlay && (
-          <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-neutral-950/90 backdrop-blur-md p-2 rounded-xl border border-blue-500/30 flex items-center gap-2.5 shadow-2xl z-20 text-left pointer-events-none select-none">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center font-mono font-black text-xs sm:text-sm text-white shadow-lg shrink-0">
-              {currentMoveToExecute}
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="text-[8px] sm:text-[9px] text-blue-400 font-bold uppercase tracking-wider block">BƯỚC CHẤP HÀNH KẾ TIẾP</span>
-              <p className="text-[10px] sm:text-[11px] font-bold text-zinc-100 truncate leading-tight">
-                {getMoveHelp(currentMoveToExecute)}
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* 3D Scene viewport */}
         <div
           ref={containerRef}
@@ -568,6 +553,19 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
                       else if (faceChar === 'B' && cz === -1) isCubieInvolvedInNextMove = true;
                     }
                     const isMainFaceSticker = faceName === faceChar;
+                    const isCenterOfRotatingFace = 
+                      isMainFaceSticker &&
+                      (
+                        (faceChar === 'U' && cx === 0 && cy === -1 && cz === 0) ||
+                        (faceChar === 'D' && cx === 0 && cy === 1 && cz === 0) ||
+                        (faceChar === 'L' && cx === -1 && cy === 0 && cz === 0) ||
+                        (faceChar === 'R' && cx === 1 && cy === 0 && cz === 0) ||
+                        (faceChar === 'F' && cx === 0 && cy === 0 && cz === 1) ||
+                        (faceChar === 'B' && cx === 0 && cy === 0 && cz === -1)
+                      );
+
+                    const isPrime = currentMoveToExecute ? currentMoveToExecute.includes("'") : false;
+                    const isDouble = currentMoveToExecute ? currentMoveToExecute.includes("2") : false;
 
                     return (
                       <div
@@ -583,15 +581,14 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
                           }
                         }}
                         style={{
-                          transform: `${faceTransform} translateZ(0.5px)`,
-                          transformStyle: 'preserve-3d',
-                          backgroundColor: '#0d1117',
+                          transform: `${faceTransform} translateZ(1.2px)`,
+                          backgroundColor: '#1c1c1f',
                           boxShadow: isOuterFace 
                             ? isCubieInvolvedInNextMove
                               ? isMainFaceSticker
                                 ? '0 0 0 1.5px #22d3ee, 0 0 8px rgba(34, 211, 238, 0.7)'
                                 : '0 0 0 1.5px rgba(59, 130, 246, 0.6), 0 0 5px rgba(59, 130, 246, 0.4)'
-                              : '0 0 0 1px #050505'
+                              : '0 0 0 1px rgba(30, 30, 32, 0.95)'
                             : 'none',
                           width: '42px',
                           height: '42px',
@@ -601,7 +598,7 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
                             ? isMainFaceSticker
                               ? 'border-cyan-400'
                               : 'border-blue-500/50'
-                            : 'border-neutral-900/60'
+                            : 'border-neutral-800/80'
                         }`}
                       >
                         {isOuterFace && color && (
@@ -615,24 +612,66 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
                             style={{
                               backgroundColor: color,
                               boxShadow: isHighlighted 
-                                ? 'inset 0 0 0 3px #3b82f6, 0 0 8px 1px #3b82f6' 
+                               ? 'inset 0 0 0 3px #3b82f6, 0 0 8px 1px #3b82f6' 
                                 : isCubieInvolvedInNextMove
                                 ? isMainFaceSticker
                                   ? 'inset 0 0 0 3px #22d3ee, 0 0 12px rgba(34, 211, 238, 0.8)'
                                   : 'inset 0 0 0 2px rgba(59, 130, 246, 0.8)'
-                                : 'inset 0 0 1px 1px rgba(0,0,0,0.15)',
+                                : 'inset 0 0 1px 1.5px rgba(255,255,255,0.1)',
                             }}
-                            className={`w-[88%] h-[88%] rounded-[5px] transition-[transform,box-shadow,opacity] duration-250 cursor-pointer ${
+                            className={`w-[91%] h-[91%] rounded-[5px] transition-[transform,box-shadow,opacity] duration-250 cursor-pointer ${
                               isMainFaceSticker 
                                 ? 'scale-95 animate-pulse' 
                                 : isCubieInvolvedInNextMove 
                                 ? 'scale-98 opacity-95' 
                                 : ''
                             } ${
-                              onStickerClick || onMove ? 'hover:scale-95 active:scale-90 touch-none border border-neutral-900/20' : 'border border-neutral-900/40'
+                              onStickerClick || onMove ? 'hover:scale-95 active:scale-90 touch-none border border-neutral-800/20' : 'border border-neutral-800/40'
                             }`}
                             title={`Mặt ${faceName} ô số ${(stickerIdx ?? 0) + 1}`}
                           />
+                        )}
+
+                        {/* 3D Edge Arrows overlay on center sticker of rotating face */}
+                        {isCenterOfRotatingFace && currentMoveToExecute && (
+                          <div className="absolute left-1/2 top-1/2 pointer-events-none z-40" style={{ transformStyle: 'preserve-3d' }}>
+                            {[
+                              // Top Flap
+                              { tx: 0, ty: -66, tz: -22, rx: 90, ry: 0, rz: 0 },
+                              // Bottom Flap
+                              { tx: 0, ty: 66, tz: -22, rx: -90, ry: 0, rz: 180 },
+                              // Left Flap
+                              { tx: -66, ty: 0, tz: -22, rx: 0, ry: -90, rz: -90 },
+                              // Right Flap
+                              { tx: 66, ty: 0, tz: -22, rx: 0, ry: 90, rz: 90 }
+                            ].map((flap, idx) => (
+                              <div
+                                key={idx}
+                                style={{
+                                  transform: `translate(-50%, -50%) translateX(${flap.tx}px) translateY(${flap.ty}px) translateZ(${flap.tz}px) rotateX(${flap.rx}deg) rotateY(${flap.ry}deg) rotateZ(${flap.rz}deg)`,
+                                  width: '132px',
+                                  height: '44px',
+                                  transformStyle: 'preserve-3d'
+                                }}
+                                className="absolute flex items-center justify-center opacity-90"
+                              >
+                                <div className={`relative flex items-center justify-center w-full h-full ${
+                                  isDouble ? 'animate-pulse' : 'animate-pulse'
+                                }`}>
+                                  <div className={`relative h-2 w-[85%] rounded-full shadow-[0_0_12px_currentColor] ${
+                                    isDouble ? 'bg-amber-500 text-amber-500' : 'bg-cyan-400 text-cyan-400'
+                                  }`}>
+                                    {(!isPrime || isDouble) && (
+                                      <div className="absolute top-1/2 -mt-2.5 -right-2 w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-l-[16px] border-l-current" />
+                                    )}
+                                    {(isPrime || isDouble) && (
+                                      <div className="absolute top-1/2 -mt-2.5 -left-2 rotate-180 w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-l-[16px] border-l-current" />
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         )}
                       </div>
                     );
