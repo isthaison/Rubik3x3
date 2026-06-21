@@ -4,6 +4,7 @@ import { getSolvedState, applyMove, applyMoves, getSolutionSteps, COLORS, genera
 import ThreeDCube from './ThreeDCube';
 import { HelpCircle, RefreshCw, Sparkles, CheckCircle2, ChevronLeft, ChevronRight, Play, Eye, Sliders, Palette, Video, Pause, Maximize, X } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics';
+import CubeCameraScanner from './CubeCameraScanner';
 
 // Utility helper to convert Rubik's moves to descriptive Vietnamese captions
 const getMoveCaption = (move: string): string => {
@@ -18,34 +19,34 @@ const getMoveCaption = (move: string): string => {
   switch (base) {
     case 'U':
       faceName = "Mặt TRÊN (U - Trắng)";
-      direction = isPrime ? "ngược chiều kim đồng hồ (xoay sang bên phải)" : "xuôi chiều kim đồng hồ (xoay sang bên trái)";
+      direction = isPrime ? "ngược chiều kim đồng hồ (xoay lớp trên cùng sang bên phải)" : "xuôi chiều kim đồng hồ (xoay lớp trên cùng sang bên trái)";
       break;
     case 'D':
       faceName = "Mặt DƯỚI (D - Vàng)";
-      direction = isPrime ? "ngược chiều kim đồng hồ (xoay sang bên trái)" : "xuôi chiều kim đồng hồ (xoay sang bên phải)";
+      direction = isPrime ? "ngược chiều kim đồng hồ (xoay lớp dưới cùng sang bên trái)" : "xuôi chiều kim đồng hồ (xoay lớp dưới cùng sang bên phải)";
       break;
     case 'F':
       faceName = "Mặt TRƯỚC (F - Lục)";
-      direction = isPrime ? "ngược chiều kim đồng hồ (lên sang trái)" : "xuôi chiều kim đồng hồ (xuống sang phải)";
+      direction = isPrime ? "ngược chiều kim đồng hồ (xoay mặt trước sang bên trái ở phía trên)" : "xuôi chiều kim đồng hồ (xoay mặt trước sang bên phải ở phía trên)";
       break;
     case 'B':
       faceName = "Mặt SAU (B - Lam)";
-      direction = isPrime ? "ngược chiều kim đồng hồ" : "xuôi chiều kim đồng hồ";
+      direction = isPrime ? "ngược chiều kim đồng hồ (xoay mặt sau sang bên phải ở phía trên khi nhìn từ mặt trước)" : "xuôi chiều kim đồng hồ (xoay mặt sau sang bên trái ở phía trên khi nhìn từ mặt trước)";
       break;
     case 'L':
       faceName = "Mặt TRÁI (L - Cam)";
-      direction = isPrime ? "ngược chiều kim đồng hồ (xoay lên phía xa)" : "xuôi chiều kim đồng hồ (xoay xuống gần bạn)";
+      direction = isPrime ? "ngược chiều kim đồng hồ (xoay lớp bên trái lên phía xa bạn)" : "xuôi chiều kim đồng hồ (xoay lớp bên trái xuống phía gần bạn)";
       break;
     case 'R':
       faceName = "Mặt PHẢI (R - Đỏ)";
-      direction = isPrime ? "ngược chiều kim đồng hồ (xoay xuống gần bạn)" : "xuôi chiều kim đồng hồ (xoay lên phía xa)";
+      direction = isPrime ? "ngược chiều kim đồng hồ (xoay lớp bên phải xuống phía gần bạn)" : "xuôi chiều kim đồng hồ (xoay lớp bên phải lên phía xa bạn)";
       break;
     default:
       return `Xoay mặt đại diện: ${move}`;
   }
 
   if (isDouble) {
-    return `${faceName}: Xoay liền 2 lần (180 độ) về bất kỳ hướng nào`;
+    return `${faceName}: Xoay liền 2 lần (180 độ) theo bất kỳ chiều nào`;
   }
   return `${faceName}: Xoay 90 độ ${direction}`;
 };
@@ -54,6 +55,7 @@ export default function CubeSolver() {
   const [cubeState, setCubeState] = useState<CubeState>(getSolvedState());
   const [paintColor, setPaintColor] = useState<CubeColor>('white');
   const [interactiveMode, setInteractiveMode] = useState<'paint' | 'play'>('paint');
+  const [showCameraScanner, setShowCameraScanner] = useState<boolean>(false);
 
   // Solver states
   const [solution, setSolution] = useState<SolverStep[] | null>(null);
@@ -62,6 +64,7 @@ export default function CubeSolver() {
 
   // Interactive step-by-step submoves player
   const [submovePointer, setSubmovePointer] = useState<number>(0);
+  const [pendingDoubleMove, setPendingDoubleMove] = useState<string | null>(null);
 
   // Auto playback simulation mechanics
   const [isPlayingAuto, setIsPlayingAuto] = useState<boolean>(false);
@@ -74,6 +77,11 @@ export default function CubeSolver() {
 
   // Track recalculated banner state or status message to show the user
   const [recalculatedNotification, setRecalculatedNotification] = useState<string | null>(null);
+
+  // Find current move to execute in visual steps (to trigger 3D highlight)
+  const currentMoveToExecute = solution && solution[currentStepIndex]
+    ? solution[currentStepIndex].moves[submovePointer]
+    : undefined;
 
   // Fade out notice automatically after 5.5 seconds
   useEffect(() => {
@@ -112,6 +120,7 @@ export default function CubeSolver() {
     if (lastAutomatedMoveRef.current === move) {
       lastAutomatedMoveRef.current = null;
       setInteractiveStepState((prev) => applyMove(prev, move));
+      setPendingDoubleMove(null);
       return;
     }
 
@@ -130,6 +139,7 @@ export default function CubeSolver() {
       setSolution(solvedSteps);
       setCurrentStepIndex(0);
       setSubmovePointer(0);
+      setPendingDoubleMove(null);
       setRecalculatedNotification("Tuyệt vời! Bạn đã hoàn thành giải khối Rubik thành công!");
       return;
     }
@@ -138,41 +148,74 @@ export default function CubeSolver() {
     const currentStep = solution[currentStepIndex];
     if (currentStep) {
       const expectedMove = currentStep.moves[submovePointer];
-      if (submovePointer < currentStep.moves.length && move === expectedMove) {
-        // Correct manual rotation! Keep current path & advance pointer
-        triggerHaptic(15);
-        setInteractiveStepState(nextState);
-        setSubmovePointer((p) => p + 1);
-      } else {
-        // Incorrect manual rotation (xoay sai)!
-        triggerHaptic([25, 45, 25]);
+      if (expectedMove) {
+        const isDouble = expectedMove.endsWith('2') && expectedMove.length === 2;
+        const baseFace = isDouble ? expectedMove[0] : null;
 
-        try {
-          const stepsList = getSolutionSteps(nextState);
-          
-          setCubeState(cloneState(nextState));
-          setInteractiveStepState(cloneState(nextState));
-          setSolution(stepsList);
-          setCurrentStepIndex(0);
-          setSubmovePointer(0);
-
-          if (stepsList[0] && stepsList[0].title === 'Lỗi Cấu Trúc Khối') {
-            setRecalculatedNotification(
-              `Bạn xoay nhầm [ ${move} ]. Trạng thái Rubik không hợp lệ để giải! Vui lòng xoay lại hoặc kiểm tra mặt nháp.`
-            );
+        if (isDouble && baseFace) {
+          if (pendingDoubleMove !== null) {
+            if (move === pendingDoubleMove) {
+              // Completed second half!
+              triggerHaptic(15);
+              setInteractiveStepState(nextState);
+              setSubmovePointer((p) => p + 1);
+              setPendingDoubleMove(null);
+            } else {
+              handleIncorrectMove(move, nextState);
+            }
           } else {
-            setRecalculatedNotification(
-              `Bạn vừa xoay [ ${move} ] (khác với hướng dẫn). Hệ thống đã tự động tính toán lại hướng giải mới nhất từ trạng thái này!`
-            );
+            // First half of double move!
+            if (move === baseFace || move === baseFace + "'") {
+              triggerHaptic(15);
+              setInteractiveStepState(nextState);
+              setPendingDoubleMove(move);
+            } else {
+              handleIncorrectMove(move, nextState);
+            }
           }
-        } catch (err) {
-          console.error("Failed to solve from this invalid state", err);
-          setInteractiveStepState(nextState);
-          setRecalculatedNotification(
-            `Bạn vừa xoay [ ${move} ] tạo cấu trúc mới. Không thể đồng bộ thuật giải, hãy thử xoay lại.`
-          );
+        } else {
+          // Normal move
+          setPendingDoubleMove(null);
+          if (submovePointer < currentStep.moves.length && move === expectedMove) {
+            triggerHaptic(15);
+            setInteractiveStepState(nextState);
+            setSubmovePointer((p) => p + 1);
+          } else {
+            handleIncorrectMove(move, nextState);
+          }
         }
       }
+    }
+  };
+
+  const handleIncorrectMove = (move: string, nextState: CubeState) => {
+    triggerHaptic([25, 45, 25]);
+    setPendingDoubleMove(null);
+
+    try {
+      const stepsList = getSolutionSteps(nextState);
+      
+      setCubeState(cloneState(nextState));
+      setInteractiveStepState(cloneState(nextState));
+      setSolution(stepsList);
+      setCurrentStepIndex(0);
+      setSubmovePointer(0);
+
+      if (stepsList[0] && stepsList[0].title === 'Lỗi Cấu Trúc Khối') {
+        setRecalculatedNotification(
+          `Bạn xoay nhầm [ ${move} ]. Trạng thái Rubik không hợp lệ để giải! Vui lòng xoay lại hoặc kiểm tra mặt nháp.`
+        );
+      } else {
+        setRecalculatedNotification(
+          `Bạn vừa xoay [ ${move} ] (khác với hướng dẫn). Hệ thống đã tự động tính toán lại hướng giải mới nhất từ trạng thái này!`
+        );
+      }
+    } catch (err) {
+      console.error("Failed to solve from this invalid state", err);
+      setInteractiveStepState(nextState);
+      setRecalculatedNotification(
+        `Bạn vừa xoay [ ${move} ] tạo cấu trúc mới. Không thể đồng bộ thuật giải, hãy thử xoay lại.`
+      );
     }
   };
 
@@ -287,6 +330,7 @@ export default function CubeSolver() {
     setCurrentStepIndex(0);
     setInteractiveStepState(cloneState(cubeState));
     setSubmovePointer(0);
+    setPendingDoubleMove(null);
   };
 
   const cloneState = (state: CubeState): CubeState => {
@@ -304,6 +348,7 @@ export default function CubeSolver() {
   const resetCurrentStepToBeginning = () => {
     if (!solution) return;
     setSubmovePointer(0);
+    setPendingDoubleMove(null);
     let base = cloneState(cubeState);
     for (let i = 0; i < currentStepIndex; i++) {
       base = applyMoves(base, solution[i].moves);
@@ -314,6 +359,7 @@ export default function CubeSolver() {
 
   const handleSubmoveNext = () => {
     if (!solution) return;
+    setPendingDoubleMove(null);
     const currentStep = solution[currentStepIndex];
     if (submovePointer < currentStep.moves.length) {
       executeNextMoveTargetingCubeRef();
@@ -322,6 +368,7 @@ export default function CubeSolver() {
 
   const handleSubmovePrev = () => {
     if (!solution || submovePointer <= 0) return;
+    setPendingDoubleMove(null);
     triggerHaptic(12);
     const currentStep = solution[currentStepIndex];
     // To reverse a move, we reset state to the start of the step and replay moves up to pointer-1
@@ -350,6 +397,7 @@ export default function CubeSolver() {
     setIsPlayingAuto(false);
     setCurrentStepIndex(index);
     setSubmovePointer(0);
+    setPendingDoubleMove(null);
 
     // Set interactive state to the beginning of this stage
     let base = cloneState(cubeState);
@@ -375,15 +423,27 @@ export default function CubeSolver() {
             <div className="lg:col-span-8 bg-neutral-950/30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/5 shadow-xl space-y-6">
               {/* Manual paint brush panel */}
               <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    <Palette className="text-blue-400" size={20} />
-                    <span>Chọn màu & Sơn lên lưới phẳng</span>
-                  </h3>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/5 pb-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <Palette className="text-blue-400" size={20} />
+                      <span>Chọn màu & Sơn lên lưới phẳng</span>
+                    </h3>
                     <p className="text-xs text-neutral-400 mt-1">
-                      Bấm vào các khay cọ màu phía dưới, sau đó click chọn các ô vuông tương ứng trên sơ đồ dẹt 2D để khớp hoàn toàn với khối Rubik thật ngoài đời của bạn.
+                      Tô màu thủ công trên sơ đồ dẹt 2D hoặc quét nhanh bằng camera thiết bị.
                     </p>
                   </div>
+                  <button
+                    onClick={() => {
+                      triggerHaptic(15);
+                      setShowCameraScanner(true);
+                    }}
+                    className="shrink-0 flex items-center justify-center gap-2 px-4.5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-blue-500/15 transition-all hover:scale-102 active:scale-95 cursor-pointer border border-blue-500/20"
+                  >
+                    <Video size={13} className="animate-pulse" />
+                    <span>Quét Bằng Camera AR</span>
+                  </button>
+                </div>
 
                   {/* Paint Brush Selector */}
                   <div className="bg-neutral-900/60 p-4 rounded-2xl border border-white/5">
@@ -607,9 +667,15 @@ export default function CubeSolver() {
                     <div>
                       <span className="text-[10px] uppercase font-bold tracking-wider text-blue-400 block mb-0.5">Hướng dẫn xoay real-time:</span>
                       <span>
-                        {submovePointer < solution[currentStepIndex].moves.length 
-                          ? `Ở lượt này, xoay ký tự [ ${solution[currentStepIndex].moves[submovePointer]} ]: ${getMoveCaption(solution[currentStepIndex].moves[submovePointer])}`
-                          : "Chúc mừng! Bạn đã hoàn thành tất cả các lượt xoay của bước giải thuật hiện tại."}
+                        {pendingDoubleMove && currentMoveToExecute ? (
+                          <span className="text-amber-300 font-semibold animate-pulse">
+                            Gần xong! Hãy xoay thêm 1 lượt <strong className="text-white bg-amber-600/50 px-1 rounded">[ {pendingDoubleMove} ]</strong> nữa để hoàn tất bước xoay kép <strong className="text-white bg-blue-600/50 px-1 rounded">[ {currentMoveToExecute} ]</strong>.
+                          </span>
+                        ) : currentMoveToExecute ? (
+                          `Ở lượt này, xoay ký tự [ ${currentMoveToExecute} ]: ${getMoveCaption(currentMoveToExecute)}`
+                        ) : (
+                          "Chúc mừng! Bạn đã hoàn thành tất cả các lượt xoay của bước giải thuật hiện tại."
+                        )}
                       </span>
                     </div>
                   </div>
@@ -762,10 +828,8 @@ export default function CubeSolver() {
                 interactive={true} 
                 onMove={(move) => handleSolverInteractiveMove(move)}
                 minimal={true}
+                currentMoveToExecute={currentMoveToExecute}
               />
-              <div className="mt-4 p-4 rounded-2xl bg-neutral-900/60 border border-white/5 text-xs text-neutral-400 text-center max-w-xs leading-relaxed">
-                Bạn có thể tự do vuốt để ngắm góc rẽ hoặc kích hoạt <strong>"Mô Phỏng 3D Tự Động"</strong> ở mục bên để chạy hoạt cảnh chuyển động.
-              </div>
             </div>
           </div>
         </div>
@@ -804,6 +868,8 @@ export default function CubeSolver() {
                 interactive={true} 
                 onMove={(move) => handleSolverInteractiveMove(move)}
                 minimal={true}
+                currentMoveToExecute={currentMoveToExecute}
+                hideStepOverlay={true}
               />
             </div>
           </div>
@@ -823,9 +889,13 @@ export default function CubeSolver() {
 
             {/* Giant real-time subtitle caption display */}
             <div className="flex items-center gap-4 border-b border-white/5 pb-3">
-              {solution[currentStepIndex].moves[submovePointer] ? (
+              {pendingDoubleMove && currentMoveToExecute ? (
+                <div className="w-12 h-12 rounded-xl bg-amber-600 flex items-center justify-center font-mono font-black text-2xl text-white shadow-xl shrink-0 animate-pulse">
+                  {pendingDoubleMove}
+                </div>
+              ) : currentMoveToExecute ? (
                 <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center font-mono font-black text-2xl text-white shadow-xl shrink-0 animate-bounce animate-duration-1000">
-                  {solution[currentStepIndex].moves[submovePointer]}
+                  {currentMoveToExecute}
                 </div>
               ) : (
                 <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center font-bold text-lg text-white shadow-xl shrink-0">
@@ -833,11 +903,17 @@ export default function CubeSolver() {
                 </div>
               )}
               
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 text-left">
                 <p className="text-sm sm:text-base font-extrabold text-white leading-snug">
-                  {submovePointer < solution[currentStepIndex].moves.length 
-                    ? getMoveCaption(solution[currentStepIndex].moves[submovePointer])
-                    : "Đã hoàn thành tất cả lượt xoay của bước giải thuật hiện tại!"}
+                  {pendingDoubleMove && currentMoveToExecute ? (
+                    <span className="text-amber-300">
+                      Gần xong! Hãy xoay thêm 1 lượt <strong>[ {pendingDoubleMove} ]</strong> để hoàn thành xoay kép [ {currentMoveToExecute} ]
+                    </span>
+                  ) : currentMoveToExecute ? (
+                    getMoveCaption(currentMoveToExecute)
+                  ) : (
+                    "Đã hoàn thành tất cả lượt xoay của bước giải thuật hiện tại!"
+                  )}
                 </p>
               </div>
             </div>
@@ -966,6 +1042,16 @@ export default function CubeSolver() {
             </div>
           </div>
         </div>
+      )}
+
+      {showCameraScanner && (
+        <CubeCameraScanner
+          currentState={cubeState}
+          onClose={() => setShowCameraScanner(false)}
+          onApplyScan={(scannedState) => {
+            setCubeState(scannedState);
+          }}
+        />
       )}
     </div>
   );

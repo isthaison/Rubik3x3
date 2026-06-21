@@ -124,23 +124,11 @@ export default function App() {
 
       </main>
 
-      {/* Bottom Footer & WCA specifications */}
-      <footer className="border-t border-slate-800 bg-[#0A0C10] py-6 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 text-center space-y-3">
-          <div className="flex items-center justify-center gap-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-            <span>Tiêu chuẩn Hiệp hội Rubik Thế giới WCA Compliant</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-          </div>
-          <p className="text-xs text-slate-500 leading-relaxed max-w-lg mx-auto">
-            Hệ thống giải thuật được lập trình chính xác tuyệt đối theo phương pháp cuốn chiếu Layer-by-layer CFOP giúp dễ dàng tiếp cận mọi lứa tuổi từ cơ bản. Đồ họa WebGL CSS 3D hiệu năng đỉnh tốt cho thiết bị di động.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-[10px] text-slate-500 font-medium">
-            <span>Hệ thống: Ổn định</span>
-            <span>Trình giải: Kociemba v3.1 Engine</span>
-            <span>Vùng: VN-North</span>
-            <span className="font-bold text-slate-400">© 2026 Cuber Labs & Rubik Master</span>
-          </div>
+      {/* Bottom Footer */}
+      <footer className="border-t border-slate-900 bg-[#0A0C10] py-5 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-medium">
+          <span>Giải pháp xoay Rubik 3D chuyên nghiệp</span>
+          <span className="font-bold text-slate-400">© 2026 Rubik Master Pro</span>
         </div>
       </footer>
     </div>

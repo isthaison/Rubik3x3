@@ -26,6 +26,11 @@
   animation: spin-slow 12s linear infinite;
 }
 
+@utility backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
 @utility scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;

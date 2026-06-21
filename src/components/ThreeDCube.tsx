@@ -1,6 +1,6 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { CubeState, CubeColor, FaceName } from '../types';
-import { COLORS } from '../utils/cubeEngine';
+import { COLORS, applyMove } from '../utils/cubeEngine';
 import { RotateCw, RotateCcw, ZoomIn, ZoomOut, Maximize2, RefreshCw, Sparkles } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics';
 import {
@@ -21,6 +21,8 @@ interface ThreeDCubeProps {
   selectedColor?: CubeColor;
   highlightedIndices?: { face: FaceName; indices: number[] };
   minimal?: boolean;
+  currentMoveToExecute?: string;
+  hideStepOverlay?: boolean;
 }
 
 export interface ThreeDCubeRef {
@@ -35,8 +37,17 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
   onStickerClick,
   selectedColor,
   highlightedIndices,
-  minimal = false
+  minimal = false,
+  currentMoveToExecute,
+  hideStepOverlay = false
 }, ref) => {
+  const [localState, setLocalState] = useState<CubeState>(state);
+
+  // Synchronize state when it changes from props externally
+  useEffect(() => {
+    setLocalState(state);
+  }, [state]);
+
   // Rotate settings (arbitrary angles representing a pro 3D isometric view)
   const [rotateX, setRotateX] = useState<number>(-25);
   const [rotateY, setRotateY] = useState<number>(45);
@@ -76,8 +87,9 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
     });
 
     setTimeout(() => {
-      onMove(move);
+      setLocalState((prev) => applyMove(prev, move));
       setAnimatingFace(null);
+      onMove(move);
     }, 280);
   };
 
@@ -406,6 +418,27 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
   const cubieFaceConfigs = CUBIE_FACE_CONFIGS;
   const quickMoves = QUICK_MOVES;
 
+  const getMoveHelp = (move: string) => {
+    const base = move[0].toUpperCase();
+    const isPrime = move.includes("'");
+    const isDouble = move.includes("2");
+    
+    const faceMap: Record<string, string> = {
+      U: 'TRÊN (U)',
+      D: 'DƯỚI (D)',
+      L: 'TRÁI (L)',
+      R: 'PHẢI (R)',
+      F: 'TRƯỚC (F)',
+      B: 'SAU (B)',
+    };
+
+    const faceStr = faceMap[base] || base;
+    let actionStr = isPrime ? 'xoay ngược chiều ↺' : 'xoay thuận chiều ↻';
+    if (isDouble) actionStr = 'xoay 180 độ ⇄';
+
+    return `Lớp ${faceStr} ${actionStr}`;
+  };
+
   return (
     <div className="flex flex-col items-center justify-center p-3 sm:p-4 bg-neutral-900/40 rounded-2xl sm:rounded-3xl border border-white/5 shadow-2xl backdrop-blur-md w-full max-w-[340px] xs:max-w-[380px] sm:max-w-none">
       {/* 3D Cube Stage Container */}
@@ -415,6 +448,21 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
           <div className="absolute top-1.5 left-2 flex items-center gap-1 text-[10px] sm:text-xs text-neutral-400 font-medium pointer-events-none">
             <RefreshCw size={11} className="animate-spin-slow text-blue-500" />
             <span>Vuốt xoay 3D</span>
+          </div>
+        )}
+
+        {/* Step-by-Step Algorithm Move Highlight Overlay */}
+        {currentMoveToExecute && !hideStepOverlay && (
+          <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-neutral-950/90 backdrop-blur-md p-2 rounded-xl border border-blue-500/30 flex items-center gap-2.5 shadow-2xl z-20 text-left pointer-events-none select-none">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center font-mono font-black text-xs sm:text-sm text-white shadow-lg shrink-0">
+              {currentMoveToExecute}
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-[8px] sm:text-[9px] text-blue-400 font-bold uppercase tracking-wider block">BƯỚC CHẤP HÀNH KẾ TIẾP</span>
+              <p className="text-[10px] sm:text-[11px] font-bold text-zinc-100 truncate leading-tight">
+                {getMoveHelp(currentMoveToExecute)}
+              </p>
+            </div>
           </div>
         )}
 
@@ -445,7 +493,7 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
           >
             {/* 26 Individual cubies styled via absolute 3D position */}
             {cubies.map(({ cx, cy, cz }) => {
-              const colors = getCubieColors(cx, cy, cz, state);
+              const colors = getCubieColors(cx, cy, cz, localState);
               const stickerMap = getCubieStickerMap(cx, cy, cz);
 
               const baseTranslate = `translate3d(${cx * 44}px, ${cy * 44}px, ${cz * 44}px)`;
@@ -506,6 +554,21 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
                     const isHighlighted = highlightedIndices && highlightedIndices.face === faceName && stickerIdx !== undefined && highlightedIndices.indices.includes(stickerIdx);
                     const isOuterFace = color !== undefined;
 
+                    if (!isOuterFace) return null;
+
+                    // Highlight the cubies that are rotating in the current algorithm step
+                    const faceChar = currentMoveToExecute ? currentMoveToExecute[0].toUpperCase() : null;
+                    let isCubieInvolvedInNextMove = false;
+                    if (faceChar) {
+                      if (faceChar === 'U' && cy === -1) isCubieInvolvedInNextMove = true;
+                      else if (faceChar === 'D' && cy === 1) isCubieInvolvedInNextMove = true;
+                      else if (faceChar === 'L' && cx === -1) isCubieInvolvedInNextMove = true;
+                      else if (faceChar === 'R' && cx === 1) isCubieInvolvedInNextMove = true;
+                      else if (faceChar === 'F' && cz === 1) isCubieInvolvedInNextMove = true;
+                      else if (faceChar === 'B' && cz === -1) isCubieInvolvedInNextMove = true;
+                    }
+                    const isMainFaceSticker = faceName === faceChar;
+
                     return (
                       <div
                         key={dir}
@@ -520,14 +583,26 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
                           }
                         }}
                         style={{
-                          transform: faceTransform,
+                          transform: `${faceTransform} translateZ(0.5px)`,
                           transformStyle: 'preserve-3d',
                           backgroundColor: '#0d1117',
-                          boxShadow: isOuterFace ? '0 0 0 1px #050505' : 'none',
+                          boxShadow: isOuterFace 
+                            ? isCubieInvolvedInNextMove
+                              ? isMainFaceSticker
+                                ? '0 0 0 1.5px #22d3ee, 0 0 8px rgba(34, 211, 238, 0.7)'
+                                : '0 0 0 1.5px rgba(59, 130, 246, 0.6), 0 0 5px rgba(59, 130, 246, 0.4)'
+                              : '0 0 0 1px #050505'
+                            : 'none',
                           width: '42px',
                           height: '42px',
                         }}
-                        className="absolute inset-0 rounded-[4px] flex items-center justify-center backface-hidden border border-neutral-900/60"
+                        className={`absolute inset-0 rounded-[4px] flex items-center justify-center backface-hidden border transition-[transform,border-color,box-shadow] duration-300 ${
+                          isCubieInvolvedInNextMove
+                            ? isMainFaceSticker
+                              ? 'border-cyan-400'
+                              : 'border-blue-500/50'
+                            : 'border-neutral-900/60'
+                        }`}
                       >
                         {isOuterFace && color && (
                           <button
@@ -539,9 +614,21 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
                             }}
                             style={{
                               backgroundColor: color,
-                              boxShadow: isHighlighted ? 'inset 0 0 0 3px #3b82f6, 0 0 8px 1px #3b82f6' : 'inset 0 0 1px 1px rgba(0,0,0,0.15)',
+                              boxShadow: isHighlighted 
+                                ? 'inset 0 0 0 3px #3b82f6, 0 0 8px 1px #3b82f6' 
+                                : isCubieInvolvedInNextMove
+                                ? isMainFaceSticker
+                                  ? 'inset 0 0 0 3px #22d3ee, 0 0 12px rgba(34, 211, 238, 0.8)'
+                                  : 'inset 0 0 0 2px rgba(59, 130, 246, 0.8)'
+                                : 'inset 0 0 1px 1px rgba(0,0,0,0.15)',
                             }}
-                            className={`w-[88%] h-[88%] rounded-[5px] transition-transform duration-200 cursor-pointer ${
+                            className={`w-[88%] h-[88%] rounded-[5px] transition-[transform,box-shadow,opacity] duration-250 cursor-pointer ${
+                              isMainFaceSticker 
+                                ? 'scale-95 animate-pulse' 
+                                : isCubieInvolvedInNextMove 
+                                ? 'scale-98 opacity-95' 
+                                : ''
+                            } ${
                               onStickerClick || onMove ? 'hover:scale-95 active:scale-90 touch-none border border-neutral-900/20' : 'border border-neutral-900/40'
                             }`}
                             title={`Mặt ${faceName} ô số ${(stickerIdx ?? 0) + 1}`}
