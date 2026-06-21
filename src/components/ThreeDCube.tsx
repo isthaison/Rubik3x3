@@ -62,32 +62,6 @@ const RotationArrows = ({ move }: { move: string }) => {
          transformStyle: 'preserve-3d'
       }}
     >
-      {/* 4 Side Edge Arrow Flaps */}
-      {[0, 1, 2, 3].map(i => (
-         <div
-           key={`flap-${i}`}
-           style={{
-             position: 'absolute',
-             transform: `rotateZ(${i * 90}deg) translateY(-94px) rotateX(90deg)`,
-             width: '160px',
-             height: '46px',
-             transformStyle: 'preserve-3d'
-           }}
-           className="flex items-center justify-center -ml-[80px] -mt-[23px] opacity-100"
-         >
-            <div className="relative w-full h-full flex items-center justify-center">
-               <div className={`h-[8px] w-[80%] rounded-full shadow-[0_0_15px_currentColor] relative ${isDouble ? 'bg-amber-400 text-amber-400' : 'bg-cyan-400 text-cyan-400'} ${isDouble ? 'animate-pulse' : 'animate-pulse'}`}>
-                  {(!isPrime || isDouble) && (
-                     <div className="absolute top-1/2 -mt-[11px] -right-2.5 w-0 h-0 border-t-[11px] border-t-transparent border-b-[11px] border-b-transparent border-l-[16px] border-l-current" />
-                  )}
-                  {(isPrime || isDouble) && (
-                     <div className="absolute top-1/2 -mt-[11px] -left-2.5 rotate-180 w-0 h-0 border-t-[11px] border-t-transparent border-b-[11px] border-b-transparent border-l-[16px] border-l-current" />
-                  )}
-               </div>
-            </div>
-         </div>
-      ))}
-      
       {/* 1 Front Face Circular Arrow Overlay */}
       <div 
         style={{

@@ -487,29 +487,6 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
     setFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
   };
 
-  const captureActiveFace = () => {
-    playSoundFeedback('capture');
-    triggerHaptic([35, 15, 30]);
-    
-    setScannedCube((prev) => ({
-      ...prev,
-      [activeFace]: [...detectedColors],
-    }));
-
-    setScannedFacesInSession((prev) => {
-      const next = new Set(prev);
-      next.add(activeFace);
-      return next;
-    });
-
-    const facesOrder: FaceName[] = ['U', 'L', 'F', 'R', 'B', 'D'];
-    const currentIdx = facesOrder.indexOf(activeFace);
-    if (currentIdx < facesOrder.length - 1) {
-      const nextFace = facesOrder[currentIdx + 1];
-      setActiveFace(nextFace);
-    }
-  };
-
   const handleModifySticker = (idx: number, newColor: CubeColor) => {
     triggerHaptic(5);
     setScannedCube((prev) => {
@@ -572,12 +549,12 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
     if (anomalies.length === 0) {
       return {
         isValid: true,
-        text: 'Hoàn hảo! Dữ liệu màu sắc hoàn toàn khớp nhau (đủ 9 ô mỗi màu). Sẵn sàng đồng bộ!',
+        text: 'Dữ liệu hợp lệ, sẵn sàng giải!',
       };
     } else {
       return {
         isValid: false,
-        text: `Tổng số màu: ${anomalies.join(', ')}. Hãy chạm chọn thủ công ở bảng bên phải để hoàn tất tinh chỉnh!`,
+        text: `Sai lệch màu: ${anomalies.join(', ')}. Hãy chạm để sửa.`,
       };
     }
   };
@@ -587,87 +564,28 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-[#06080d]/80 backdrop-blur-md">
       <div className="w-full max-w-[1200px] max-h-[95vh] sm:max-h-[85vh] bg-[#0c0e14] border border-white/10 rounded-2xl scrollbar-hide shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col lg:grid lg:grid-cols-12 overflow-y-auto font-sans text-slate-100 relative">
-        {/* Modal Header for small screens - Floating close button */}
+        {/* Universal floating close button */}
         <button
           onClick={() => {
             triggerHaptic(10);
             stopCamera();
             onClose();
           }}
-          className="absolute top-4 right-4 z-50 p-2 bg-black/50 hover:bg-white/10 backdrop-blur-md rounded-full text-neutral-400 hover:text-white transition cursor-pointer lg:hidden"
+          className="absolute top-3 right-3 sm:top-5 sm:right-5 z-50 p-2.5 bg-black/50 hover:bg-neutral-800 border border-white/10 backdrop-blur-md rounded-full text-neutral-400 hover:text-white transition cursor-pointer"
         >
           <X size={20} />
         </button>
 
       {/* LEFT COLUMN: Camera Scanner & Visual Target System (7 cols) */}
-      <div className="col-span-12 lg:col-span-7 flex flex-col justify-between border-r border-white/5 p-4 sm:p-6 min-h-[400px] bg-neutral-950/20">
+      <div className="col-span-12 lg:col-span-7 flex flex-col justify-center items-center border-r border-white/5 p-4 sm:p-6 min-h-[400px] bg-[#0c0e14]">
         
-        {/* Header toolbar */}
-        <div className="flex items-center justify-between pb-3.5 border-b border-white/5">
-          <div className="flex items-center gap-2.5">
-            <div className="flex items-center gap-1.5 p-1 px-2.5 bg-blue-500/10 rounded-full border border-blue-500/15 text-blue-400 text-[10px] font-mono font-bold tracking-wider animate-pulse">
-              <Camera size={11} />
-              <span>LIVE CORE AR</span>
-            </div>
-            <div>
-              <h2 className="text-md font-bold text-white tracking-tight flex items-center gap-1.5">
-                Quét Rảnh Tay Siêu Tốc 
-                <span className="text-[10px] bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 px-1.5 py-0.5 rounded-md font-serif">v2.0 AI</span>
-              </h2>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {/* Hand-free Auto pilot toggle trigger */}
-            <button
-              onClick={() => {
-                triggerHaptic(10);
-                setIsAutoMode(!isAutoMode);
-              }}
-              className={`p-1.5 px-3 rounded-xl border text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                isAutoMode 
-                  ? 'bg-blue-600/20 border-blue-500 text-blue-400 shadow-lg shadow-blue-500/5' 
-                  : 'bg-neutral-900 border-white/5 text-neutral-400 hover:text-white'
-              }`}
-            >
-              {isAutoMode ? <Zap size={11} className="text-blue-400 animate-bounce" /> : <ZapOff size={11} />}
-              <span>{isAutoMode ? 'TỰ QUÉT: BẬT' : 'TỰ QUÉT: TẮT'}</span>
-            </button>
-
-            <button
-              onClick={() => {
-                triggerHaptic(10);
-                stopCamera();
-                onClose();
-              }}
-              className="p-2 hover:bg-neutral-900 rounded-xl text-neutral-400 hover:text-white transition cursor-pointer border border-transparent hover:border-white/5"
-              title="Thoát máy quét"
-            >
-              <X size={16} />
-            </button>
-          </div>
-        </div>
-
-        <div className="bg-neutral-900/40 border border-white/5 p-3 rounded-2xl my-2 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
-           <div className="space-y-1 text-center sm:text-left">
-             <div className="flex items-center gap-2 justify-center sm:justify-start">
-                <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest block">
-                  {aiDetectedFace === activeFace ? '✨ Đã Khóa Mục Tiêu' : '🔍 Hướng Camera Vào'}
-                </span>
-             </div>
-             <h4 className="text-lg font-black text-white">
-                {FACE_LABELS[activeFace]}
-             </h4>
-           </div>
-           
-           <div className="flex flex-col items-center sm:items-end gap-1.5">
-             <span className="text-[10px] font-medium px-2 py-0.5 rounded-full border border-white/5 bg-black/20 text-blue-300">
-               {scannedFacesInSession.has(activeFace) ? '✓ Đã cập nhật' : '⏳ Chờ ghi nhận'}
-             </span>
-             <span className="text-[10px] font-semibold text-neutral-400">
-                Tiến độ: <strong className="text-emerald-400">{scannedFacesInSession.size}</strong>/6
-             </span>
-           </div>
+        <div className="w-full flex justify-between items-center mb-4 px-2">
+          <h2 className="text-xl font-bold text-white">
+            {FACE_LABELS[activeFace]}
+          </h2>
+          <span className="text-sm font-semibold text-neutral-400">
+             <strong className="text-emerald-400">{scannedFacesInSession.size}</strong>/6
+          </span>
         </div>
 
         {/* Live video viewport workspace */}
@@ -762,7 +680,6 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
                           </svg>
                           <span className={`text-xs font-mono font-extrabold ${FACE_GLOWS[activeFace].text}`}>{stabilityProgress}%</span>
                         </div>
-                        <span className="text-[9px] font-bold text-slate-100 uppercase tracking-widest block animate-pulse">Giữ nguyên khối...</span>
                       </div>
                     </div>
                   )}
@@ -770,66 +687,25 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
                   {/* Cooldown lock view screen helper */}
                   {cooldownCountdown > 0 && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-emerald-950/85 backdrop-blur-sm rounded-2xl text-center p-4">
-                      <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-md font-bold mb-1.5 animate-bounce border border-emerald-400/20">
+                      <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-md font-bold animate-bounce border border-emerald-400/20">
                         ✓
                       </div>
-                      <span className="text-xs font-black text-white uppercase tracking-widest block">Mặt thành công!</span>
-                      <span className="text-[10px] text-emerald-200 mt-1 leading-normal">
-                        Chuẩn bị xoay qua mặt tiếp theo ({cooldownCountdown}s)
-                      </span>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Dynamic bottom live-view badges (Real-time classification helper) */}
-              <div className="absolute bottom-4 left-4 right-4 bg-[#0a0c14]/95 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-white/5 flex items-center justify-between shadow-xl pointer-events-none">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
-                  <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Cảm biến màu:</span>
-                </div>
-                <div className="grid grid-cols-9 gap-1 h-5 w-44">
-                  {detectedColors.map((col, idx) => (
-                    <div
-                      key={idx}
-                      style={{ backgroundColor: COLORS[col] }}
-                      className="h-full aspect-square rounded-sm border border-black/30 shadow-sm"
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Status active state indicator */}
-              <div className="absolute top-4 left-4 bg-emerald-500/10 backdrop-blur px-3 py-1 rounded-full border border-emerald-500/20 text-[9px] font-bold font-mono text-emerald-400 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>CHẾ ĐỘ RẢNH TAY</span>
-              </div>
+              {/* Toggle camera facing mode action */}
+              <button
+                onClick={toggleFacingMode}
+                disabled={!!errorMessage}
+                className="absolute top-4 right-4 bg-black/40 backdrop-blur-md border border-white/10 hover:bg-white/20 text-white w-9 h-9 flex items-center justify-center rounded-full z-20 transition shadow-lg cursor-pointer disabled:opacity-50 active:scale-90"
+                title="Đảo ống kính camera"
+              >
+                <RefreshCw size={14} className="text-white" />
+              </button>
             </div>
           )}
-        </div>
-
-        {/* Action button controls */}
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <button
-              onClick={toggleFacingMode}
-              disabled={!!errorMessage}
-              className="w-full sm:w-auto px-5 py-3.5 bg-[#121624] hover:bg-[#1a2034] disabled:opacity-50 text-slate-300 hover:text-white rounded-2xl text-xs font-extrabold border border-white/5 cursor-pointer flex items-center justify-center gap-2 transition duration-200"
-            >
-              <RefreshCw size={14} className="animate-spin-slow text-indigo-400" />
-              <span>Đảo ống kính camera</span>
-            </button>
-
-            {/* Traditional manual trigger button */}
-            <button
-              onClick={captureActiveFace}
-              disabled={!!errorMessage || !stream || cooldownCountdown > 0}
-              className="flex-1 w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 disabled:from-neutral-900 disabled:to-neutral-900 disabled:opacity-40 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold rounded-2xl text-xs uppercase tracking-wider shadow-lg shadow-blue-500/15 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer border border-blue-500/30"
-            >
-              <Check size={15} />
-              <span>Ghi Màu Thủ Công ({FACE_LABELS[activeFace].split(' ')[1]})</span>
-            </button>
-          </div>
         </div>
       </div>
 
@@ -837,16 +713,6 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
       <div className="col-span-12 lg:col-span-5 bg-[#090b11] flex flex-col justify-between p-4 sm:p-6 min-h-screen">
         
         <div className="space-y-6 flex-1">
-          <div>
-            <span className="text-[10px] text-blue-400 tracking-widest font-bold uppercase block">Quản lý tổng thể</span>
-            <h3 className="text-sm font-bold text-slate-200 uppercase tracking-widest block border-b border-white/5 pb-2">
-              📊 BẢN ĐỒ TIẾN ĐỘ THỰC TẾ
-            </h3>
-            <p className="text-[11px] text-neutral-400 mt-1.5">
-              Để thuật toán giải hoạt động ổn định, 6 mặt Rubik cần lưu trữ đúng thông tin nhãn màu tương ứng.
-            </p>
-          </div>
-
           {/* Hexagonal selector list */}
           <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-2 gap-2">
             {(Object.keys(scannedCube) as FaceName[]).map((face) => {
@@ -893,18 +759,9 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
           </div>
 
           {/* Active face inspection + manual paint fine-tuning */}
-          <div className="bg-[#101420] p-4.5 rounded-2xl border border-white/5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-white/5 pb-2">
-              <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles size={11} className="text-amber-400 animate-spin-slow" />
-                <span>Hiệu chỉnh trực tiếp: {FACE_LABELS[activeFace]}</span>
-              </span>
-              <span className="text-[9px] font-mono text-neutral-400 animate-pulse">Chạm để sửa màu</span>
-            </div>
-
+          <div className="bg-[#101420] p-4.5 rounded-2xl border border-white/5 shadow-xl flex justify-center items-center">
             {/* Simulated 3x3 layout of active face */}
-            <div className="flex flex-col items-center gap-4">
-              <div className="grid grid-cols-3 gap-2 w-32 sm:w-36 aspect-square p-2 bg-neutral-950/80 rounded-2xl border border-white/10 shadow-inner">
+            <div className="grid grid-cols-3 gap-2 w-32 sm:w-36 aspect-square p-2 bg-neutral-950/80 rounded-2xl border border-white/10 shadow-inner">
                 {scannedCube[activeFace].map((col, idx) => (
                   <div key={idx} className="relative group aspect-square">
                     {/* Select dropdown selection box over original color */}
@@ -930,12 +787,6 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
                   </div>
                 ))}
               </div>
-
-              {/* Color instructions helper */}
-              <div className="bg-[#121828] p-3 rounded-xl border border-white/5 text-[10px] text-center text-neutral-400 italic leading-relaxed">
-                📌 <span className="font-bold text-neutral-300">Tính năng Sửa Màu Thông Minh:</span> Nhấp trực tiếp vào bất cứ ô vuông số 1-9 phía trên để tinh chỉnh ngay nếu máy ảnh chụp bị sai lệch màu do ảnh hưởng của môi trường ánh sáng phòng.
-              </div>
-            </div>
           </div>
         </div>
 
@@ -954,26 +805,16 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
 
           <div className="flex gap-3">
             <button
-              onClick={() => {
-                triggerHaptic(10);
-                stopCamera();
-                onClose();
-              }}
-              className="px-4 py-3.5 bg-neutral-900 border border-white/5 hover:bg-neutral-800 text-slate-300 hover:text-white rounded-2xl text-xs font-bold transition flex-1 text-center cursor-pointer"
-            >
-              Quay lại
-            </button>
-
-            <button
               onClick={handleApplyCompletedScan}
               disabled={!allFacesCaptured}
-              className={`flex-2 px-6 py-3.5 rounded-2xl text-xs font-extrabold uppercase tracking-widest text-white transition-all text-center border cursor-pointer ${
+              className={`w-full px-6 py-4 rounded-2xl text-sm font-bold uppercase text-white transition-all text-center border cursor-pointer flex items-center justify-center gap-2 ${
                 allFacesCaptured
-                  ? 'bg-blue-600 hover:bg-blue-500 border-blue-500 shadow-xl shadow-blue-500/10 active:scale-97'
-                  : 'bg-neutral-900 text-neutral-500 border-transparent cursor-not-allowed'
+                  ? 'bg-emerald-600 hover:bg-emerald-500 border-emerald-500 shadow-xl shadow-emerald-500/20 active:scale-95'
+                  : 'bg-neutral-800 text-neutral-500 border-transparent cursor-not-allowed'
               }`}
             >
-              Xác Nhận & Giải Rubik
+              <Check size={18} />
+              Giải Thử Ngay
             </button>
           </div>
         </div>
