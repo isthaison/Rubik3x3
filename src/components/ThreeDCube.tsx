@@ -132,7 +132,7 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
   // Rotate settings (arbitrary angles representing a pro 3D isometric view)
   const [rotateX, setRotateX] = useState<number>(-25);
   const [rotateY, setRotateY] = useState<number>(45);
-  const [zoom, setZoom] = useState<number>(1.1);
+  const [zoom, setZoom] = useState<number>(1.15);
   const [activeFaceOnly, setActiveFaceOnly] = useState<boolean>(false);
   const [sensitivity, setSensitivity] = useState<number>(0.6);
   const [animatingFace, setAnimatingFace] = useState<{
@@ -181,7 +181,7 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
     resetCamera: () => {
       setRotateX(-25);
       setRotateY(45);
-      setZoom(1.1);
+      setZoom(1.15);
     }
   }));
 
@@ -521,9 +521,9 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-2 sm:p-2 bg-neutral-900/40 rounded-lg sm:rounded-lg border border-white/5 shadow-2xl backdrop-blur-md w-full max-w-[340px] xs:max-w-[380px] sm:max-w-none">
+    <div className="flex flex-col items-center justify-center w-full max-w-[340px] xs:max-w-[380px] sm:max-w-none bg-transparent">
       {/* 3D Cube Stage Container */}
-      <div className="relative w-full aspect-square max-w-[260px] xs:max-w-[280px] sm:max-w-[360px] md:max-w-[400px] flex items-center justify-center overflow-hidden py-2 sm:py-2 select-none">
+      <div className="relative w-full aspect-square max-w-[280px] xs:max-w-[320px] sm:max-w-[440px] md:max-w-[500px] lg:max-w-[550px] flex items-center justify-center overflow-visible py-2 sm:py-2 select-none">
         {/* Interaction helper text overlay */}
         {interactive && (
           <div className="absolute top-1.5 left-2 flex items-center gap-1 text-[10px] sm:text-xs text-neutral-400 font-medium pointer-events-none">
@@ -546,7 +546,7 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
             perspective: '1000px',
             cursor: isDragging.current ? 'grabbing' : 'grab',
           }}
-          className="w-full h-full flex items-center justify-center touch-none scale-90 sm:scale-100"
+          className="w-full h-full flex items-center justify-center touch-none scale-100"
         >
           {/* Animated Cube skeleton */}
           <div
@@ -760,7 +760,7 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
                 triggerHaptic(12);
                 setRotateX(-25);
                 setRotateY(45);
-                setZoom(1.1);
+                setZoom(1.15);
               }}
               title="Định dạng góc nhìn chuẩn"
             >

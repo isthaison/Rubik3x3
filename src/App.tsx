@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import CubeSolver from './components/CubeSolver';
 import ProTimer from './components/ProTimer';
 import LearnAcademy from './components/LearnAcademy';
-import AICoach from './components/AICoach';
-import { HelpCircle, Trophy, GraduationCap, Sparkles, MessageSquare, Code, Cpu } from 'lucide-react';
+import { HelpCircle, Trophy, GraduationCap, Sparkles, Code, Cpu } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-type TabName = 'solver' | 'timer' | 'academy' | 'coach';
+type TabName = 'solver' | 'timer' | 'academy';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabName>('solver');
@@ -88,20 +87,6 @@ export default function App() {
                 <span className="block sm:hidden">Học</span>
                 <span className="hidden sm:block">Học Viện</span>
               </button>
-
-              <button
-                id="tab-btn-coach"
-                onClick={() => setActiveTab('coach')}
-                className={`flex-1 md:flex-none flex items-center justify-center gap-1 px-2.5 py-1 rounded-md text-[11px] sm:text-xs font-semibold transition-colors cursor-pointer shrink-0 ${
-                  activeTab === 'coach'
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <MessageSquare size={11} className="shrink-0" />
-                <span className="block sm:hidden">AI Coach</span>
-                <span className="hidden sm:block">AI Coach</span>
-              </button>
             </nav>
 
             <div className="hidden lg:flex items-center gap-1.5 px-2 py-1 bg-blue-900/10 border border-blue-500/20 rounded-lg shrink-0">
@@ -127,7 +112,6 @@ export default function App() {
             {activeTab === 'solver' && <CubeSolver />}
             {activeTab === 'timer' && <ProTimer />}
             {activeTab === 'academy' && <LearnAcademy />}
-            {activeTab === 'coach' && <AICoach />}
           </motion.div>
         </AnimatePresence>
 

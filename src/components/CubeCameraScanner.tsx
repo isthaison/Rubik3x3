@@ -205,27 +205,14 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
                 <p className="text-xs text-slate-200 font-bold leading-relaxed">Không Thể Khởi Chạy Camera</p>
                 <p className="text-[11px] text-zinc-400 font-medium leading-relaxed">{errorMessage}</p>
               </div>
-              <div className="flex flex-col gap-2 justify-center">
-                <div className="flex gap-2 justify-center">
-                  <button
-                    onClick={startCamera}
-                    className="px-3.5 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 bg-gradient-to-r from-zinc-800 to-zinc-700 border border-zinc-700/50"
-                  >
-                    <RefreshCw size={12} />
-                    <span>Nạp Thử Lại</span>
-                  </button>
-                  
-                  <button
-                    onClick={handleSimulateScan}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1 shadow-lg shadow-emerald-500/10 active:scale-95"
-                  >
-                    <Sparkles size={12} className="text-amber-300 animate-spin" />
-                    <span>Chạy Bản Demo</span>
-                  </button>
-                </div>
-                <p className="text-[10px] text-zinc-500 italic mt-1 font-medium">
-                  Mẹo: Click nút "Chạy Bản Demo" màu xanh lá để lập nhanh trạng thái Rubik mẫu và test ngay bộ giải 3D!
-                </p>
+              <div className="flex justify-center">
+                <button
+                  onClick={startCamera}
+                  className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 bg-gradient-to-r from-zinc-800 to-zinc-700 border border-zinc-700/50"
+                >
+                  <RefreshCw size={12} />
+                  <span>Nạp Thử Lại</span>
+                </button>
               </div>
             </div>
           ) : (
@@ -602,24 +589,15 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
         {/* Action console bottom footer validation & trigger apply solver */}
         <div className="pt-2 border-t border-white/5 space-y-1.5 bg-[#090b11]">
           
-          {/* Quick utility controllers for testing and resetting */}
-          <div className="grid grid-cols-2 gap-2 mt-0.5 shrink-0 pb-1 flex-wrap">
-            <button
-              onClick={handleSimulateScan}
-              className="px-2.5 py-2 bg-neutral-900 hover:bg-neutral-850 border border-amber-500/25 rounded-lg text-zinc-300 hover:text-white transition cursor-pointer flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] font-black active:scale-95"
-              title="Điền nhanh một mô phỏng xoay có thực và sẵn sàng giải"
-            >
-              <Sparkles size={11} className="text-amber-400 animate-pulse" />
-              <span>Nạp Mẫu Demo</span>
-            </button>
-            
+          {/* Quick utility controllers for resetting */}
+          <div className="w-full mt-0.5 shrink-0 pb-1">
             <button
               onClick={handleClearAllScans}
-              className="px-2.5 py-2 bg-neutral-900 hover:bg-red-950/20 border border-red-500/25 rounded-lg text-red-450 hover:text-red-300 transition cursor-pointer flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] font-black active:scale-95"
+              className="w-full px-2.5 py-2 bg-neutral-900 hover:bg-red-950/20 border border-red-500/25 rounded-lg text-red-400 hover:text-red-300 transition cursor-pointer flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] font-black active:scale-95"
               title="Xóa trống toàn bộ tiến trình và vẽ lại từ đầu"
             >
               <X size={11} />
-              <span>Reset Dữ Liệu</span>
+              <span>Xoá Hết Mặt Đã Quét / Vẽ Lại</span>
             </button>
           </div>
 
