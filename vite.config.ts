@@ -5,7 +5,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: './',
+    base: process.env.GITHUB_ACTIONS === 'true' ? '/Rubik3x3/' : './',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
