@@ -59,8 +59,28 @@ interface UseCubeScannerProps {
 export function useCubeScanner({ currentState, onApplyScan, onClose }: UseCubeScannerProps) {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [activeFace, setActiveFace] = useState<FaceName>('U');
-  const [scannedCube, setScannedCube] = useState<CubeState>(cloneState(currentState));
+  const [activeFace, _setActiveFace] = useState<FaceName>('U');
+  const activeFaceRef = useRef<FaceName>('U');
+  const setActiveFace = (face: FaceName) => {
+    _setActiveFace(face);
+    activeFaceRef.current = face;
+  };
+
+  const [scannedCube, _setScannedCube] = useState<CubeState>(cloneState(currentState));
+  const scannedCubeRef = useRef<CubeState>(cloneState(currentState));
+  const setScannedCube = (valOrFn: CubeState | ((prev: CubeState) => CubeState)) => {
+    if (typeof valOrFn === 'function') {
+      _setScannedCube((prev) => {
+        const next = valOrFn(prev);
+        scannedCubeRef.current = next;
+        return next;
+      });
+    } else {
+      _setScannedCube(valOrFn);
+      scannedCubeRef.current = valOrFn;
+    }
+  };
+
   const [cameraActive, setCameraActive] = useState<boolean>(true);
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
   const [isAutoMode, setIsAutoMode] = useState<boolean>(true);
@@ -85,6 +105,8 @@ export function useCubeScanner({ currentState, onApplyScan, onClose }: UseCubeSc
   // Tracking dynamic stability frames
   const isCooldownActiveRef = useRef<boolean>(false);
   const centerStabilityRef = useRef<{ face: FaceName; count: number }>({ face: 'U', count: 0 });
+  const lastCandidateColorsRef = useRef<string>('');
+  const candidateStabilityCounterRef = useRef<number>(0);
 
   // Timer for cooldown decrements
   useEffect(() => {
@@ -280,18 +302,33 @@ export function useCubeScanner({ currentState, onApplyScan, onClose }: UseCubeSc
       if (hasCube) {
         setDetectedColors(sampled);
 
+        // --- KIỂM TRA ĐỘ ỔN ĐỊNH CỦA KHUNG HÌNH (TEMPORAL INTEGRATION) ---
+        const colorsString = sampled.join(',');
+        const isSameAsLast = colorsString === lastCandidateColorsRef.current;
+
+        if (isSameAsLast) {
+          candidateStabilityCounterRef.current += 1;
+        } else {
+          candidateStabilityCounterRef.current = 1;
+          lastCandidateColorsRef.current = colorsString;
+        }
+
+        const STABILITY_REQUIRED = 8; // Đạt độ ổn định trong khoảng 250ms (với 30fps)
+        const currentProgress = Math.min(100, Math.round((candidateStabilityCounterRef.current / STABILITY_REQUIRED) * 100));
+        setStabilityProgress(currentProgress);
+
         // --- TỰ ĐỘNG DÒ MẶT THÔNG MINH QUA Ô TÂM ---
         const centerColor = sampled[4];
         const mappedFace = CENTER_COLOR_TO_FACE[centerColor];
 
-        let targetFace = activeFace;
+        let targetFace = activeFaceRef.current;
         if (mappedFace && !isCooldownActiveRef.current) {
           if (mappedFace === centerStabilityRef.current.face) {
             centerStabilityRef.current.count += 1;
             
             if (centerStabilityRef.current.count >= 2) {
               setAiDetectedFace(mappedFace);
-              if (activeFace !== mappedFace) {
+              if (activeFaceRef.current !== mappedFace) {
                 setActiveFace(mappedFace);
                 targetFace = mappedFace;
                 triggerHaptic(8);
@@ -302,40 +339,20 @@ export function useCubeScanner({ currentState, onApplyScan, onClose }: UseCubeSc
           }
         }
 
-        // --- TỰ ĐỘNG NHẬN DIỆN MÀU LIÊN TỤC KHÔNG CẦN CHỤP ---
-        setScannedCube((prev) => {
-          const currentFaceColors = prev[targetFace];
-          const correctedSampled = [...sampled];
-          if (centerColor) {
-            correctedSampled[4] = centerColor;
+        // --- TỰ ĐỘNG CHỤP KHI ĐẠT ĐỘ ỔN ĐỊNH TUYỆT ĐỐI ---
+        if (candidateStabilityCounterRef.current >= STABILITY_REQUIRED) {
+          const currentFaceColors = scannedCubeRef.current[targetFace];
+          const isDifferent = sampled.some((col, idx) => col !== currentFaceColors[idx]);
+
+          if (isDifferent && !isCooldownActiveRef.current) {
+            // Thực hiện chụp tự động khi không nằm trong thời gian cooldown
+            triggerAutoCapture(sampled, targetFace);
           }
-
-          const isDifferent = correctedSampled.some((col, idx) => col !== currentFaceColors[idx]);
-          
-          if (isDifferent) {
-            setScannedFacesInSession((p) => {
-              if (!p.has(targetFace)) {
-                const n = new Set(p);
-                n.add(targetFace);
-                playSoundFeedback('tick');
-                triggerHaptic(10);
-                return n;
-              }
-              return p;
-            });
-
-            return {
-              ...prev,
-              [targetFace]: correctedSampled
-            };
-          }
-          return prev;
-        });
-
-        setStabilityProgress(100);
+        }
       } else {
+        candidateStabilityCounterRef.current = 0;
         setStabilityProgress(0);
-        setDetectedColors(Array(9).fill('white')); // Keep standard neutral template
+        setDetectedColors(Array(9).fill('white')); // Trả về mẫu chuẩn trống khi không thấy Rubik
       }
     }
 
