@@ -237,89 +237,108 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
                   <span>ĐÃ PHÁT HIỆN MẶT RUBIK ({detectionConfidence}%)</span>
                 </div>
               ) : (
-                <div className="absolute top-2.5 left-2.5 bg-amber-500/90 border border-amber-400/30 text-slate-900 px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1.5 z-20 shadow-md backdrop-blur-md">
-                  <span className="w-1.5 h-1.5 bg-slate-905 rounded-full animate-ping text-slate-900" />
-                  <span>CĂN CHỈNH GIỜ MẶT RUBIK... ({detectionConfidence}%)</span>
+                <div className="absolute top-2.5 left-2.5 bg-amber-500/90 border border-amber-400/30 text-white px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1.5 z-20 shadow-md backdrop-blur-md">
+                  <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" />
+                  <span>CĂN CHỈNH MẶT RUBIK... ({detectionConfidence}%)</span>
                 </div>
               )}
 
-              {/* Visual guidance wireframes (Dây định khung nhịp 3x3) */}
+              {/* Visual guidance wireframes (Hệ thống định vị thông minh Border-less & Anchor Points) */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className={`relative w-[52%] aspect-square border-2 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                <div className={`relative w-[54%] aspect-square flex items-center justify-center transition-all duration-300 ${
                   cooldownCountdown > 0 
-                    ? 'border-emerald-400 scale-102 bg-emerald-500/10 shadow-[0_0_50px_rgba(16,185,129,0.3)]' 
+                    ? 'scale-102 shadow-[0_0_60px_rgba(16,185,129,0.15)] bg-emerald-500/5' 
                     : isCubeFaceDetected
-                    ? `${FACE_GLOWS[activeFace].border} ${FACE_GLOWS[activeFace].bg} ${FACE_GLOWS[activeFace].shadow}`
-                    : 'border-amber-500/30 bg-black/30'
+                    ? `${FACE_GLOWS[activeFace].bg} ${FACE_GLOWS[activeFace].shadow}`
+                    : 'bg-black/10'
                 }`}>
                   
-                  {/* Glowing dynamic brackets for visual look */}
-                  <div className={`absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 -mt-1 -ml-1 rounded-tl-xl transition-all duration-300 ${cooldownCountdown > 0 ? 'border-emerald-400' : isCubeFaceDetected ? FACE_GLOWS[activeFace].border : 'border-amber-500/40'}`} />
-                  <div className={`absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 -mt-1 -mr-1 rounded-tr-xl transition-all duration-300 ${cooldownCountdown > 0 ? 'border-emerald-400' : isCubeFaceDetected ? FACE_GLOWS[activeFace].border : 'border-amber-500/40'}`} />
-                  <div className={`absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 -mb-1 -ml-1 rounded-bl-xl transition-all duration-300 ${cooldownCountdown > 0 ? 'border-emerald-400' : isCubeFaceDetected ? FACE_GLOWS[activeFace].border : 'border-amber-500/40'}`} />
-                  <div className={`absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 -mb-1 -mr-1 rounded-br-xl transition-all duration-300 ${cooldownCountdown > 0 ? 'border-emerald-400' : isCubeFaceDetected ? FACE_GLOWS[activeFace].border : 'border-amber-500/40'}`} />
+                  {/* High-tech, ultra-fine corner anchor points with dynamic coloring */}
+                  <div className={`absolute top-0 left-0 w-4 h-4 border-t-[1.5px] border-l-[1.5px] -mt-0.5 -ml-0.5 rounded-tl-sm transition-all duration-305 ${cooldownCountdown > 0 ? 'border-emerald-400 shadow-[0_0_8px_#10b981]' : isCubeFaceDetected ? 'border-sky-400 shadow-[0_0_8px_#38bdf8]' : 'border-white/30'}`} />
+                  <div className={`absolute top-0 right-0 w-4 h-4 border-t-[1.5px] border-r-[1.5px] -mt-0.5 -mr-0.5 rounded-tr-sm transition-all duration-305 ${cooldownCountdown > 0 ? 'border-emerald-400 shadow-[0_0_8px_#10b981]' : isCubeFaceDetected ? 'border-sky-400 shadow-[0_0_8px_#38bdf8]' : 'border-white/30'}`} />
+                  <div className={`absolute bottom-0 left-0 w-4 h-4 border-b-[1.5px] border-l-[1.5px] -mb-0.5 -ml-0.5 rounded-bl-sm transition-all duration-305 ${cooldownCountdown > 0 ? 'border-emerald-400 shadow-[0_0_8px_#10b981]' : isCubeFaceDetected ? 'border-sky-400 shadow-[0_0_8px_#38bdf8]' : 'border-white/30'}`} />
+                  <div className={`absolute bottom-0 right-0 w-4 h-4 border-b-[1.5px] border-r-[1.5px] -mb-0.5 -mr-0.5 rounded-br-sm transition-all duration-305 ${cooldownCountdown > 0 ? 'border-emerald-400 shadow-[0_0_8px_#10b981]' : isCubeFaceDetected ? 'border-sky-400 shadow-[0_0_8px_#38bdf8]' : 'border-white/30'}`} />
  
-                  {/* Laser alignment ray shader scanning line */}
-                  <div className={`absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent to-transparent shadow-[0_0_12px_rgba(34,211,238,0.8)] animate-scan-bounce ${
-                    cooldownCountdown > 0 ? 'via-emerald-400 font-semibold' : isCubeFaceDetected ? FACE_GLOWS[activeFace].lightGlow : 'via-amber-400/30'
+                  {/* Laser alignment ray shader scanning line (sleek teal gradient line) */}
+                  <div className={`absolute left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_rgba(34,211,238,0.9)] animate-scan-bounce transition-all duration-500 ${
+                    cooldownCountdown > 0 ? 'via-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.9)]' : isCubeFaceDetected ? FACE_GLOWS[activeFace].lightGlow : 'via-amber-400/20'
                   }`} />
  
-                  {/* Inside active coordinates center targeting AR indicators */}
-                  <div className="grid grid-cols-3 gap-1.5 w-full h-full p-1.5 opacity-90">
+                  {/* Active coordinates center targeting AR indicators */}
+                  <div className="grid grid-cols-3 gap-2 w-full h-full p-2 opacity-95">
                     {Array(9).fill(0).map((_, i) => {
                       const detectedColor = detectedColors[i] || 'white';
-                      const colorHex = isCubeFaceDetected ? COLORS[detectedColor] : '#475569';
+                      const colorHex = isCubeFaceDetected ? COLORS[detectedColor] : '#4b5563';
+                      
                       return (
-                        <div key={i} className="flex flex-col items-center justify-center relative w-full h-full">
-                          {/* AR Sticker Border Frame */}
-                          <div
-                            style={{ borderColor: colorHex }}
-                            className={`w-full h-full border rounded-md transition-all duration-300 flex flex-col items-center justify-center relative ${
-                              cooldownCountdown > 0
-                                ? 'bg-emerald-500/10 border-emerald-400 scale-102 shadow-[0_0_8px_rgba(16,185,129,0.4)]'
-                                : isCubeFaceDetected && stabilityProgress > 70
-                                ? 'scale-105 shadow-[0_0_12px_rgba(34,211,238,0.5)] bg-slate-900/40'
-                                : 'bg-black/30'
+                        <div key={i} className="flex items-center justify-center relative w-full h-full">
+                          {/* Anchor point target indicator */}
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            {/* Fine corner marks for a micro-lens alignment look */}
+                            <div className="absolute w-1.5 h-1.5 top-0.5 left-0.5 border-t border-l border-white/10" />
+                            <div className="absolute w-1.5 h-1.5 top-0.5 right-0.5 border-t border-r border-white/10" />
+                            <div className="absolute w-1.5 h-1.5 bottom-0.5 left-0.5 border-b border-l border-white/10" />
+                            <div className="absolute w-1.5 h-1.5 bottom-0.5 right-0.5 border-b border-r border-white/10" />
+                          </div>
+                          
+                          {/* Outer dotted tactile circle anchor ring */}
+                          <div 
+                            style={{ 
+                              borderColor: isCubeFaceDetected ? `${colorHex}66` : 'rgba(255, 255, 255, 0.12)',
+                              boxShadow: isCubeFaceDetected ? `0 0 12px ${colorHex}15` : 'none'
+                            }}
+                            className={`w-9 h-9 rounded-full border border-dashed flex items-center justify-center transition-all duration-300 ${
+                              cooldownCountdown > 0 
+                                ? 'border-emerald-400/60 scale-105 bg-emerald-500/5' 
+                                : isCubeFaceDetected && stabilityProgress > 70 
+                                ? 'scale-110 bg-slate-900/30' 
+                                : 'bg-transparent'
                             }`}
                           >
-                            {/* Inside Dot */}
+                            {/* Inner active solid color anchor point indicator */}
                             <div
-                              style={{ backgroundColor: colorHex }}
-                              className={`w-2 h-2 rounded-full border border-black/40 transition-all duration-300 ${
+                              style={{ 
+                                backgroundColor: colorHex,
+                                boxShadow: isCubeFaceDetected ? `0 0 10px ${colorHex}` : 'none' 
+                              }}
+                              className={`w-3.5 h-3.5 rounded-full border border-black/40 transition-all duration-300 ${
                                 cooldownCountdown > 0
-                                  ? 'bg-emerald-400 scale-125 animate-ping'
-                                  : isCubeFaceDetected && stabilityProgress > 70
-                                  ? 'scale-110 shadow-lg'
-                                  : 'animate-pulse opacity-40'
+                                  ? 'bg-white scale-125 animate-ping'
+                                  : isCubeFaceDetected
+                                  ? 'scale-100 hover:scale-115'
+                                  : 'scale-75 opacity-25 animate-pulse'
                               }`}
                             />
+                            
+                            {/* Micro secondary target ring for precise styling details */}
+                            <div className={`absolute w-11 h-11 rounded-full border border-white/5 transition-opacity duration-305 ${isCubeFaceDetected ? 'opacity-80' : 'opacity-0'}`} />
                           </div>
                         </div>
                       );
                     })}
                   </div>
  
-                  {/* Ring stability indicator - simplified to a subtle glow on the frame instead of a full screen overlay */}
-
                   {/* Cooldown lock view screen helper with bypass skip button */}
                   {cooldownCountdown > 0 && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#090b11]/92 backdrop-blur-[2px] rounded-lg text-center p-4 z-30 select-none">
-                      <div className="w-10 h-10 bg-emerald-500/15 text-emerald-400 rounded-full flex items-center justify-center text-sm font-bold border border-emerald-400/30 animate-pulse">
-                        ✓
+                    <div className="absolute inset-x-0 bottom-4 mx-auto w-[90%] flex flex-col items-center justify-center bg-[#090b11]/95 border border-emerald-500/30 backdrop-blur-md rounded-xl text-center py-3 px-4 z-30 select-none shadow-xl">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-5 h-5 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center text-[10px] font-bold border border-emerald-400/20">
+                          ✓
+                        </div>
+                        <span className="text-xs font-bold text-slate-200">
+                          Đã lưu Mặt {FACE_LABELS[activeFace]}!
+                        </span>
                       </div>
-                      <span className="text-xs font-bold text-emerald-400 mt-2 block">
-                        Đã quét Mặt {FACE_LABELS[activeFace]}!
-                      </span>
-                      <span className="text-[10.5px] text-zinc-400 mt-1 block font-mono">Đóng băng hình ảnh... {cooldownCountdown}s</span>
+                      <span className="text-[10px] text-zinc-400 mt-0.5 block font-mono">Đóng băng trong {cooldownCountdown}s</span>
                       
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           skipCooldown();
                         }}
-                        className="mt-3 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-lg text-[9px] uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition pointer-events-auto cursor-pointer"
+                        className="mt-2 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-md text-[9px] uppercase tracking-wider shadow-md hover:scale-102 active:scale-95 transition pointer-events-auto cursor-pointer"
                       >
-                        Bỏ qua / Quét tiếp
+                        Tiếp tục ngay
                       </button>
                     </div>
                   )}
