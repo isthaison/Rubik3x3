@@ -527,79 +527,7 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
             })}
           </div>
 
-          {/* Active face inspection + manual paint fine-tuning */}
-          <div className="bg-[#111625] p-3 rounded-xl border border-white/5 shadow-xl space-y-3">
-            <div className="text-center">
-              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider block">
-                SỬA NHANH MÀU Ô LỖI (CHẠM & TÔ)
-              </span>
-            </div>
 
-            {/* Simulated 3x3 layout of active face */}
-            <div className="flex flex-col items-center gap-3">
-              <div className="grid grid-cols-3 gap-1.5 w-32 sm:w-36 aspect-square p-2 bg-neutral-950/80 rounded-lg border border-white/10 shadow-inner relative justify-center items-center">
-                {scannedCube[activeFace].map((col, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      if (idx === 4) {
-                        playSoundFeedback('error');
-                        triggerHaptic([40, 20]);
-                        alert('Ô tâm giữa (ô 5) được định hướng cố định theo màu tiêu chuẩn đại diện cho mặt đó. Hãy xoay các mặt khác để thay đổi hướng, không chỉnh màu tâm giữa!');
-                        return;
-                      }
-                      handleModifySticker(idx, selectedInk);
-                    }}
-                    style={{ backgroundColor: COLORS[col] }}
-                    className="w-full aspect-square rounded-lg border border-neutral-950/45 duration-150 cursor-pointer shadow-subtle flex items-center justify-center text-xs font-bold text-neutral-950/70 select-none hover:scale-105 active:scale-92 transition-all text-center focus:outline-none"
-                    title={`Ô ${idx + 1} - Chạm để tô bằng mực ${selectedInk}`}
-                  >
-                    {idx + 1}
-                  </button>
-                ))}
-              </div>
-
-              {/* Ink Selection Palette */}
-              <div className="w-full space-y-2 bg-[#090b11] p-2 rounded-lg border border-white/5 shrink-0">
-                <span className="text-[9.5px] font-bold text-zinc-400 text-center block uppercase tracking-wider">
-                  Mực tô hiện tại:
-                </span>
-                <div className="flex justify-center gap-1.5 flex-wrap">
-                  {(['white', 'yellow', 'green', 'blue', 'orange', 'red'] as CubeColor[]).map((lnk) => {
-                    const COLOR_NAMES_VI: Record<CubeColor, string> = {
-                      white: 'Trắng',
-                      yellow: 'Vàng',
-                      green: 'Lục',
-                      blue: 'Lam',
-                      orange: 'Cam',
-                      red: 'Đỏ',
-                    };
-                    const isSelected = selectedInk === lnk;
-                    return (
-                      <button
-                        key={lnk}
-                        onClick={() => {
-                          triggerHaptic(8);
-                          setSelectedInk(lnk);
-                        }}
-                        style={{ backgroundColor: COLORS[lnk] }}
-                        className={`px-2.5 py-1.5 rounded-md border text-[10px] font-extrabold flex items-center gap-1.5 cursor-pointer transition-all ${
-                          isSelected
-                            ? 'scale-110 shadow-md ring-2 ring-blue-500 text-neutral-950 border-white font-black'
-                            : 'opacity-70 hover:opacity-100 text-[#090b11]/90 hover:scale-105 border-transparent'
-                        }`}
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-black/40" />
-                        <span className="bg-white/80 px-1 py-0.2 rounded-sm text-neutral-950 text-[8.5px] leading-none shrink-0 border border-black/5">
-                          {COLOR_NAMES_VI[lnk]}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Action console bottom footer validation & trigger apply solver */}
