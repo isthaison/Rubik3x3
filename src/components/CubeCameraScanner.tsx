@@ -11,14 +11,14 @@ interface CubeCameraScannerProps {
   currentState: CubeState;
 }
 
-// Convert native color string to Vietnamese label with custom hex displays
+// Translate standard face abbreviations to clean local titles
 const FACE_LABELS: Record<FaceName, string> = {
-  U: 'Mặt Trên (Trắng)',
-  L: 'Mặt Trái (Cam)',
-  F: 'Mặt Trước (Lục)',
-  R: 'Mặt Phải (Đỏ)',
-  B: 'Mặt Sau (Lam)',
-  D: 'Mặt Dưới (Vàng)',
+  U: 'Mặt Trên',
+  L: 'Mặt Trái',
+  F: 'Mặt Trước',
+  R: 'Mặt Phải',
+  B: 'Mặt Sau',
+  D: 'Mặt Dưới',
 };
 
 // Compact labels without redundant color text or long sentences for 6-button list
@@ -59,40 +59,6 @@ const FACE_GLOWS: Record<FaceName, { border: string; bg: string; shadow: string;
   R: { border: 'border-rose-500/85', bg: 'bg-rose-500/5', shadow: 'shadow-[0_0_40px_rgba(244,63,94,0.3)]', text: 'text-rose-400', lightGlow: 'via-rose-400' },
   B: { border: 'border-blue-500/85', bg: 'bg-blue-500/5', shadow: 'shadow-[0_0_40px_rgba(59,130,246,0.3)]', text: 'text-blue-400', lightGlow: 'via-blue-400' },
   D: { border: 'border-yellow-400/85', bg: 'bg-yellow-400/5', shadow: 'shadow-[0_0_40px_rgba(250,204,21,0.3)]', text: 'text-yellow-400', lightGlow: 'via-yellow-400' },
-};
-
-// Detailed guides instructing user how to rotate to get to the next face smoothly
-const NAVIGATION_GUIDES: Record<FaceName, { step: string; tip: string; illustration: string }> = {
-  U: {
-    step: 'Bước 1/6: Quét Mặt TRÊN (Trắng)',
-    tip: 'Đặt mặt có ô tâm TRẮNG nằm ngay chính giữa camera.',
-    illustration: 'Độc mặt TRÊN hướng về thấu kính.'
-  },
-  L: {
-    step: 'Bước 2/6: Quét Mặt TRÁI (Cam)',
-    tip: 'Từ mặt Trên, hãy NGHIÊNG KHỐI XUỐNG DƯỚI một chút để thấy mặt CAM.',
-    illustration: 'Nghiêng cụp đầu khối Rubik xuống.'
-  },
-  F: {
-    step: 'Bước 3/6: Quét Mặt TRƯỚC (Lục)',
-    tip: 'Tiếp tục XOAY KHỐI SANG TRÁI để lộ mặt XANH LÁ (Lục).',
-    illustration: 'Xoay khối sang trái 90 độ.'
-  },
-  R: {
-    step: 'Bước 4/6: Quét Mặt PHẢI (Đỏ)',
-    tip: 'Tiếp tục XOAY KHỐI SANG TRÁI một lần nữa để lộ mặt ĐỎ.',
-    illustration: 'Xoay khối sang trái 90 độ.'
-  },
-  B: {
-    step: 'Bước 5/6: Quét Mặt SAU (Lam)',
-    tip: 'Tiếp tục XOAY SANG TRÁI để lộ mặt XANH DƯƠNG (Lam).',
-    illustration: 'Xoay khối sang trái 90 độ.'
-  },
-  D: {
-    step: 'Bước 6/6: Quét Mặt DƯỚI (Vàng)',
-    tip: 'Cuối cùng, LẬT KHỐI NGƯỢC LÊN hẳn để thấy mặt ĐẾ VÀNG.',
-    illustration: 'Lật ngược khối lên trên hoàn toàn.'
-  }
 };
 
 // Play pleasant synthesizer sound fx using standard native Web Audio API
@@ -242,14 +208,13 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
 
               {/* Real-time precheck status indicator badges */}
               {isCubeFaceDetected ? (
-                <div className="absolute top-2.5 left-2.5 bg-emerald-500/95 border border-emerald-400 text-white px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1.5 z-20 shadow-md backdrop-blur-md animate-pulse">
-                  <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
-                  <span>ĐÃ PHÁT HIỆN MẶT RUBIK ({detectionConfidence}%)</span>
+                <div className="absolute top-2.5 left-2.5 bg-emerald-500/95 border border-emerald-400 text-white px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase flex items-center gap-1 z-20 shadow-md backdrop-blur-md">
+                  <span className="w-1 h-1 bg-white rounded-full animate-ping" />
+                  <span>ĐÃ NHẬN DIỆN ({detectionConfidence}%)</span>
                 </div>
               ) : (
-                <div className="absolute top-2.5 left-2.5 bg-amber-500/90 border border-amber-400/30 text-white px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1.5 z-20 shadow-md backdrop-blur-md">
-                  <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" />
-                  <span>CĂN CHỈNH MẶT RUBIK... ({detectionConfidence}%)</span>
+                <div className="absolute top-2.5 left-2.5 bg-zinc-800/90 border border-white/5 text-slate-300 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase flex items-center gap-1 z-20 shadow-md backdrop-blur-md">
+                  <span>CĂN CHỈNH KHỐI ({detectionConfidence}%)</span>
                 </div>
               )}
 
@@ -378,7 +343,7 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
               className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:border-slate-800/40 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-bold rounded-lg text-xs tracking-wider shadow-md shadow-emerald-600/10 transition-all cursor-pointer flex items-center justify-center gap-2 border border-emerald-500/30 active:scale-[0.98]"
             >
               <Camera size={14} />
-              <span>{isCubeFaceDetected ? 'Chụp lại mặt này' : 'Hãy giữ vững Rubik để nhận diện'}</span>
+              <span>{isCubeFaceDetected ? 'Chụp Mặt Hiện Tại' : 'Chưa Nhận Diện Được...'}</span>
             </button>
           </div>
         </div>
@@ -468,14 +433,13 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
               }`} />
               <div>
                 {scannedFacesInSession.size < 6 ? (
-                  <span>Hãy chụp đủ 6 mặt. Máy ảnh đang chờ đối soát màu tổng thể toàn bộ khối Rubik ({scannedFacesInSession.size}/6).</span>
+                  <span>Hãy quét đủ 6 mặt để đối soát màu ({scannedFacesInSession.size}/6).</span>
                 ) : !Object.values(colorCounts).every(c => c === 9) ? (
                   <span>
-                    <strong>Cấu trúc màu chưa chuẩn:</strong> Lệch số o màu ở các góc/cạnh (phải đủ 9 ô mỗi màu). 
-                    Hãy chọn mặt ở danh mục dưới và sửa ô màu lỗi trên bảng lưới 3x3.
+                    <strong>Thiếu hoặc thừa màu:</strong> Khối Rubik phải có đúng 9 ô cho mỗi màu. Vui lòng quét lại các mặt bị nhận diện lệch.
                   </span>
                 ) : (
-                  <span><strong>✓ Đủ mặt & Đủ màu:</strong> Cấu trúc màu hợp lệ tuyệt đối! Khối Rubik an toàn và sẵn sàng giải được.</span>
+                  <span><strong>Khối hợp lệ:</strong> Các màu đã chuẩn chỉ! Khối Rubik đã sẵn sàng để giải.</span>
                 )}
               </div>
             </div>
