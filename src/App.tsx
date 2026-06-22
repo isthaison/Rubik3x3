@@ -17,9 +17,9 @@ export default function App() {
       
       {/* Upper Brand Header - Optimized & highly compact space saving design */}
       <header className="border-b border-slate-800 bg-[#0D1117] backdrop-blur-md sticky top-0 z-50 py-1.5 sm:py-2">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 flex flex-col md:flex-row items-center justify-between gap-2.5">
-          <div className="flex items-center justify-between w-full md:w-auto gap-2.5 min-w-0">
-            <div className="flex items-center gap-2 min-w-0">
+        <div className="max-w-5xl mx-auto px-3 sm:px-2 flex flex-col md:flex-row items-center justify-between gap-1.5.5">
+          <div className="flex items-center justify-between w-full md:w-auto gap-1.5.5 min-w-0">
+            <div className="flex items-center gap-1.5 min-w-0">
               {/* Extremely compact vector Rubik Core Logo */}
               <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-blue-500 to-indigo-600 rounded flex items-center justify-center font-bold text-white shadow-md relative shrink-0">
                 <div className="grid grid-cols-2 gap-0.5 w-4 aspect-square font-bold text-white text-[7px] sm:text-[8px] leading-none text-center">
@@ -39,13 +39,13 @@ export default function App() {
               </div>
             </div>
             
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
               <span className="text-[7.5px] font-mono font-bold bg-blue-500/15 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">v2.4</span>
             </div>
           </div>
 
           {/* Compact tab controllers laid out in a slim single bar */}
-          <div className="flex items-center gap-2 overflow-hidden w-full md:w-auto">
+          <div className="flex items-center gap-1.5 overflow-hidden w-full md:w-auto">
             <nav className="flex items-center gap-0.5 bg-[#0A0C10] p-0.5 rounded-lg border border-slate-800/80 overflow-x-auto scrollbar-none flex-nowrap w-full md:w-auto">
               <button
                 id="tab-btn-solver"
@@ -113,7 +113,7 @@ export default function App() {
       </header>
 
       {/* Main Core View Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-8 overflow-hidden">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-2 sm:px-3 py-2 sm:py-2 overflow-hidden">
         
         {/* Dynamic active tab routing display rendered with premium fade/slide animation */}
         <AnimatePresence mode="wait">
@@ -134,8 +134,8 @@ export default function App() {
       </main>
 
       {/* Bottom Footer */}
-      <footer className="border-t border-slate-900 bg-[#0A0C10] py-5 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-medium">
+      <footer className="border-t border-slate-900 bg-[#0A0C10] py-3 mt-auto">
+        <div className="max-w-5xl mx-auto px-2 flex flex-col sm:flex-row items-center justify-between gap-1.5 text-xs text-slate-500 font-medium">
           <span>Giải pháp xoay Rubik 3D chuyên nghiệp</span>
           <span className="font-bold text-slate-400">© 2026 Rubik Master Pro</span>
         </div>

@@ -118,16 +118,16 @@ export default function LearnAcademy() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-1.5">
       {/* Academy Title and Intro */}
       {!selectedLesson ? (
-        <div className="space-y-6">
-          <div className="bg-gradient-to-br from-blue-600/20 to-neutral-900/40 p-6 rounded-3xl border border-blue-500/20 shadow-xl relative overflow-hidden">
+        <div className="space-y-1.5">
+          <div className="bg-gradient-to-br from-blue-600/20 to-neutral-900/40 p-2 rounded-lg border border-blue-500/20 shadow-xl relative overflow-hidden">
             <div className="absolute -right-12 -top-12 opacity-10 blur-sm pointer-events-none">
               <GraduationCap size={240} className="text-blue-500" />
             </div>
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-blue-500/20 text-blue-400 rounded-2xl border border-blue-400/30">
+            <div className="flex items-start gap-1.5">
+              <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg border border-blue-400/30">
                 <GraduationCap size={32} />
               </div>
               <div>
@@ -137,7 +137,7 @@ export default function LearnAcademy() {
                 </p>
               </div>
             </div>
-            <div className="mt-4 flex items-center gap-3">
+            <div className="mt-1.5 flex items-center gap-1.5">
               <span className="flex items-center gap-1 text-[11px] font-mono text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-400/20">
                 <Activity size={12} />
                 Chế độ tự luyện
@@ -150,15 +150,15 @@ export default function LearnAcademy() {
           </div>
 
           {/* Lessons Grid list */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
             {LESSONS.map((lesson) => (
               <div
                 key={lesson.id}
                 onClick={() => startLesson(lesson)}
-                className="group p-5 bg-neutral-950/40 hover:bg-neutral-950/80 rounded-2xl border border-white/5 hover:border-blue-500/30 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-lg"
+                className="group p-2 bg-neutral-950/40 hover:bg-neutral-950/80 rounded-lg border border-white/5 hover:border-blue-500/30 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-lg"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-2">
                     <span className={`text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full border ${
                       lesson.difficulty === 'Cơ bản'
                         ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
@@ -171,11 +171,11 @@ export default function LearnAcademy() {
                   <h3 className="text-base font-bold text-neutral-200 group-hover:text-blue-400 transition-colors">
                     {lesson.title}
                   </h3>
-                  <p className="text-neutral-400 text-xs mt-2 line-clamp-3 leading-relaxed">
+                  <p className="text-neutral-400 text-xs mt-1.5 line-clamp-2 leading-relaxed">
                     {lesson.description}
                   </p>
                 </div>
-                <button className="mt-4 py-2 flex items-center justify-center gap-2 bg-neutral-800 text-white group-hover:bg-blue-600 group-hover:text-white rounded-xl border border-white/5 group-hover:border-blue-500 text-xs font-semibold tracking-wide transition-all pointer-events-none">
+                <button className="mt-1.5 py-2 flex items-center justify-center gap-1.5 bg-neutral-800 text-white group-hover:bg-blue-600 group-hover:text-white rounded-lg border border-white/5 group-hover:border-blue-500 text-xs font-semibold tracking-wide transition-all pointer-events-none">
                   <Play size={12} fill="currentColor" />
                   <span>Bắt đầu học</span>
                 </button>
@@ -185,12 +185,12 @@ export default function LearnAcademy() {
         </div>
       ) : (
         // Active Lesson View Screen
-        <div className="space-y-6">
+        <div className="space-y-1.5">
           {/* Breadcrumb back header */}
-          <div className="flex items-center justify-between border-b border-white/5 pb-4">
+          <div className="flex items-center justify-between border-b border-white/5 pb-2">
             <button
               onClick={() => setSelectedLesson(null)}
-              className="flex items-center gap-1 text-sm font-semibold text-neutral-400 hover:text-white transition-colors cursor-pointer bg-neutral-800/40 px-3 py-1.5 rounded-xl border border-white/5"
+              className="flex items-center gap-1 text-sm font-semibold text-neutral-400 hover:text-white transition-colors cursor-pointer bg-neutral-800/40 px-2 py-1 rounded-lg border border-white/5"
             >
               <ChevronLeft size={16} />
               <span>Quay lại hộc viện</span>
@@ -206,9 +206,9 @@ export default function LearnAcademy() {
           </div>
 
           {/* Combined Lesson screen with dynamic visualizer layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-1.5 items-start">
             {/* Lesson details container */}
-            <div className="lg:col-span-5 space-y-5 bg-neutral-950/30 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/5 shadow-xl">
+            <div className="lg:col-span-5 space-y-1.5 bg-neutral-950/30 p-2 sm:p-2 rounded-lg sm:rounded-lg border border-white/5 shadow-xl">
               <div className="flex items-center justify-between border-b border-white/5 pb-2">
                 <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest bg-neutral-900 border border-white/5 px-2.5 py-1 rounded-full">
                   Phần {currentStepIndex + 1} / {selectedLesson.steps.length}
@@ -224,21 +224,21 @@ export default function LearnAcademy() {
               </div>
 
               {/* Step info text */}
-              <div className="space-y-3">
-                <h4 className="text-lg font-bold text-white border-l-4 border-blue-500 pl-3">
+              <div className="space-y-1.5">
+                <h4 className="text-base font-bold text-white border-l-4 border-blue-500 pl-3">
                   {selectedLesson.steps[currentStepIndex].title}
                 </h4>
-                <div className="text-neutral-300 text-sm leading-relaxed whitespace-pre-wrap font-sans bg-neutral-900/40 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-white/5">
+                <div className="text-neutral-300 text-sm leading-relaxed whitespace-pre-wrap font-sans bg-neutral-900/40 p-2 sm:p-2 rounded-lg sm:rounded-lg border border-white/5">
                   {selectedLesson.steps[currentStepIndex].content}
                 </div>
               </div>
 
               {/* Dynamic Algorithm Showcase inside the tutorial if any */}
               {selectedLesson.steps[currentStepIndex].algorithm && (
-                <div className="bg-blue-950/20 p-4 rounded-2xl border border-blue-500/20 space-y-2">
+                <div className="bg-blue-950/20 p-2 rounded-lg border border-blue-500/20 space-y-1.5">
                   <span className="text-[11px] font-bold text-blue-400 uppercase tracking-widest block">Tổ hợp thao tác (Algorithm):</span>
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-mono font-bold text-blue-300 block tracking-wider bg-neutral-950/40 px-3 py-1.5 rounded-lg border border-blue-500/30">
+                    <span className="text-base font-mono font-bold text-blue-300 block tracking-wider bg-neutral-950/40 px-2 py-1 rounded-lg border border-blue-500/30">
                       {selectedLesson.steps[currentStepIndex].algorithm}
                     </span>
                     <button
@@ -253,11 +253,11 @@ export default function LearnAcademy() {
               )}
 
               {/* Steps control footer */}
-              <div className="flex items-center justify-between pt-4 border-t border-white/5">
+              <div className="flex items-center justify-between pt-2 border-t border-white/5">
                 <button
                   onClick={() => handleStepChange(currentStepIndex - 1)}
                   disabled={currentStepIndex === 0}
-                  className="flex items-center gap-2 py-2 px-4 text-xs font-semibold tracking-wide bg-neutral-800 text-white disabled:pointer-events-none disabled:opacity-40 hover:bg-neutral-700 active:scale-95 transition-all rounded-xl border border-white/5 cursor-pointer"
+                  className="flex items-center gap-1.5 py-2 px-2 text-xs font-semibold tracking-wide bg-neutral-800 text-white disabled:pointer-events-none disabled:opacity-40 hover:bg-neutral-700 active:scale-95 transition-all rounded-lg border border-white/5 cursor-pointer"
                 >
                   <ChevronLeft size={14} />
                   <span>Bước Trước</span>
@@ -266,7 +266,7 @@ export default function LearnAcademy() {
                 {currentStepIndex < selectedLesson.steps.length - 1 ? (
                   <button
                     onClick={() => handleStepChange(currentStepIndex + 1)}
-                    className="flex items-center gap-2 py-2 px-4 text-xs font-semibold tracking-wide bg-blue-600 text-white hover:bg-blue-500 active:scale-95 transition-all rounded-xl shadow-md cursor-pointer"
+                    className="flex items-center gap-1.5 py-2 px-2 text-xs font-semibold tracking-wide bg-blue-600 text-white hover:bg-blue-500 active:scale-95 transition-all rounded-lg shadow-md cursor-pointer"
                   >
                     <span>Tiếp Theo</span>
                     <ChevronRight size={14} />
@@ -277,7 +277,7 @@ export default function LearnAcademy() {
                       triggerHaptic(25);
                       setSelectedLesson(null);
                     }}
-                    className="flex items-center gap-2 py-2 px-4 text-xs font-semibold tracking-wide bg-blue-600 text-white hover:bg-blue-500 active:scale-95 transition-all rounded-xl shadow-md cursor-pointer"
+                    className="flex items-center gap-1.5 py-2 px-2 text-xs font-semibold tracking-wide bg-blue-600 text-white hover:bg-blue-500 active:scale-95 transition-all rounded-lg shadow-md cursor-pointer"
                   >
                     <Award size={14} />
                     <span>Hoàn thành bài học</span>
@@ -287,8 +287,8 @@ export default function LearnAcademy() {
             </div>
 
             {/* Simulated 3D sandbox right side */}
-            <div className="lg:col-span-7 space-y-4">
-              <div className="bg-neutral-950/30 p-4 rounded-3xl border border-white/5 flex flex-col items-center min-h-[350px] sm:min-h-[400px] lg:min-h-[480px]">
+            <div className="lg:col-span-7 space-y-1.5">
+              <div className="bg-neutral-950/30 p-2 rounded-lg border border-white/5 flex flex-col items-center min-h-[350px] sm:min-h-[400px] lg:min-h-[480px]">
                 <ThreeDCube
                   state={academyCubeState}
                   onMove={handleInteractiveMove}

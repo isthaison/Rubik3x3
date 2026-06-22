@@ -324,12 +324,12 @@ export default function ProTimer() {
   const chartData = prepareChartData();
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-1.5">
       {/* Central interactive Timer card */}
-      <div className="lg:col-span-2 space-y-6">
+      <div className="lg:col-span-2 space-y-1.5">
         {/* Scramble Display Card */}
-        <div className="bg-neutral-950/40 p-5 rounded-3xl border border-white/5 relative shadow-lg">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-neutral-950/40 p-2 rounded-lg border border-white/5 relative shadow-lg">
+          <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] bg-blue-500/10 text-blue-400 font-extrabold px-3 py-1 rounded-full border border-blue-500/20 uppercase tracking-widest flex items-center gap-1.5">
               <Zap size={11} className="text-blue-400" />
               Chuỗi Xáo Trộn WCA
@@ -347,16 +347,16 @@ export default function ProTimer() {
               <span>{copied ? 'Đã chép' : 'Sao chép'}</span>
             </button>
           </div>
-          <div className="text-sm md:text-base font-mono font-bold text-center tracking-widest leading-relaxed text-neutral-300 select-all p-3 bg-neutral-900/40 rounded-xl border border-white/5">
+          <div className="text-sm md:text-base font-mono font-bold text-center tracking-widest leading-relaxed text-neutral-300 select-all p-2 bg-neutral-900/40 rounded-lg border border-white/5">
             {scramble}
           </div>
-          <div className="flex items-center justify-center gap-3 mt-4">
+          <div className="flex items-center justify-center gap-1.5 mt-1.5">
             <button
               onClick={() => {
                 handleHaptic(12);
                 handleNewScramble();
               }}
-              className="text-xs font-semibold text-neutral-400 hover:text-white flex items-center gap-1 bg-neutral-900 px-3 py-1.5 rounded-lg border border-white/5 transition-all active:scale-95 cursor-pointer"
+              className="text-xs font-semibold text-neutral-400 hover:text-white flex items-center gap-1 bg-neutral-900 px-2 py-1 rounded-lg border border-white/5 transition-all active:scale-95 cursor-pointer"
             >
               <RotateCcw size={13} />
               <span>Tải xáo trộn mới</span>
@@ -368,7 +368,7 @@ export default function ProTimer() {
         <div
           id="tactile-timer-board"
           onClick={handleTriggerStart}
-          className={`aspect-[4/3] sm:aspect-[2/1] min-h-[220px] sm:min-h-[280px] rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${
+          className={`aspect-[4/3] sm:aspect-[2/1] min-h-[220px] sm:min-h-[280px] rounded-lg border border-white/5 shadow-2xl relative overflow-hidden flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${
             timerState === 'running'
               ? 'bg-neutral-950'
               : 'bg-gradient-to-br from-neutral-950/90 to-neutral-900/60 hover:from-neutral-950/95 hover:to-neutral-900/75'
@@ -378,7 +378,7 @@ export default function ProTimer() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.05)_0,transparent_100%)] pointer-events-none" />
 
           {/* Core instruction overlays */}
-          <div className="absolute top-4 flex items-center gap-1 text-[11px] font-bold text-neutral-500 uppercase tracking-widest pointer-events-none">
+          <div className="absolute top-2 flex items-center gap-1 text-[11px] font-bold text-neutral-500 uppercase tracking-widest pointer-events-none">
             <Clock size={12} />
             {timerState === 'idle' && <span>Ấn hoặc nhấn phím CÁCH để bắt đầu</span>}
             {timerState === 'holding' && <span>Chuẩn bị thả ra...</span>}
@@ -397,13 +397,13 @@ export default function ProTimer() {
 
           {/* Secondary state notices */}
           {timerState === 'idle' && (
-            <div className="mt-4 py-1.5 px-3 bg-neutral-900/80 rounded-xl border border-white/5 text-neutral-400 font-semibold text-xs tracking-wider pointer-events-none">
+            <div className="mt-1.5 py-1.5 px-3 bg-neutral-900/80 rounded-lg border border-white/5 text-neutral-400 font-semibold text-xs tracking-wider pointer-events-none">
               ẤN TRỰC TIẾP LÊN ĐÂY / GIỮ PHÍM CÁCH
             </div>
           )}
 
           {timerState === 'inspecting' && (
-            <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-rose-400 bg-rose-500/5 px-3 py-1 rounded-full border border-rose-500/10 pointer-events-none">
+            <div className="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-rose-400 bg-rose-500/5 px-3 py-1 rounded-full border border-rose-500/10 pointer-events-none">
               <AlertCircle size={12} />
               <span>Phải xoay trong 15s để tránh DNF</span>
             </div>
@@ -412,8 +412,8 @@ export default function ProTimer() {
 
         {/* Data Visualization Section */}
         {chartData.length > 0 && (
-          <div className="bg-neutral-950/40 p-5 rounded-3xl border border-white/5 shadow-lg relative overflow-hidden">
-            <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest border-b border-white/5 pb-2 mb-4 flex items-center gap-1.5">
+          <div className="bg-neutral-950/40 p-2 rounded-lg border border-white/5 shadow-lg relative overflow-hidden">
+            <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest border-b border-white/5 pb-2 mb-1.5 flex items-center gap-1.5">
               <Activity size={13} className="text-blue-400" />
               <span>Biểu Đồ Thành Tích (10 Lần Gần Nhất)</span>
             </h4>
@@ -455,28 +455,28 @@ export default function ProTimer() {
       </div>
 
       {/* Solving stats and history log panels */}
-      <div className="space-y-6">
+      <div className="space-y-1.5">
         {/* Core Stats Overview widget */}
-        <div className="bg-neutral-950/40 p-5 rounded-3xl border border-white/5 shadow-lg space-y-4">
+        <div className="bg-neutral-950/40 p-2 rounded-lg border border-white/5 shadow-lg space-y-1.5">
           <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest border-b border-white/5 pb-2 flex items-center gap-1.5">
             <Trophy size={13} className="text-yellow-400" />
             <span>Kỷ Lục & Thống Kê WCA</span>
           </h4>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-neutral-900/40 p-3.5 rounded-2xl border border-white/5 text-center">
+          <div className="grid grid-cols-2 gap-1.5">
+            <div className="bg-neutral-900/40 p-2 rounded-lg border border-white/5 text-center">
               <span className="text-[10px] font-bold text-neutral-500 block uppercase tracking-wider">MỐC PB CÁ NHÂN</span>
-              <span className="text-lg font-mono font-bold text-yellow-400">
+              <span className="text-base font-mono font-bold text-yellow-400">
                 {getPB() > 0 ? formatTime(getPB()) : 'N/A'}
               </span>
             </div>
-            <div className="bg-neutral-900/40 p-3.5 rounded-2xl border border-white/5 text-center">
+            <div className="bg-neutral-900/40 p-2 rounded-lg border border-white/5 text-center">
               <span className="text-[10px] font-bold text-neutral-500 block uppercase tracking-wider">SỐ LẦN GIẢI</span>
-              <span className="text-lg font-mono font-bold text-white">{history.length}</span>
+              <span className="text-base font-mono font-bold text-white">{history.length}</span>
             </div>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-1.5.5">
             <div className="flex items-center justify-between text-xs font-medium border-b border-white/5 pb-1">
               <span className="text-neutral-400 flex items-center gap-1">
                 <Award size={12} className="text-blue-400" />
@@ -495,13 +495,13 @@ export default function ProTimer() {
         </div>
 
         {/* Timer Settings Widget */}
-        <div className="bg-neutral-950/40 p-5 rounded-3xl border border-white/5 shadow-lg space-y-4">
+        <div className="bg-neutral-950/40 p-2 rounded-lg border border-white/5 shadow-lg space-y-1.5">
           <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest border-b border-white/5 pb-2 flex items-center gap-1.5">
             <Sliders size={13} className="text-blue-400" />
             <span>Cấu Hình Đồng Hồ</span>
           </h4>
 
-          <div className="space-y-3">
+          <div className="space-y-1.5">
             {/* 1. Use Inspection Toggle */}
             <div className="flex items-center justify-between p-1">
               <div className="flex flex-col gap-0.5">
@@ -601,8 +601,8 @@ export default function ProTimer() {
         </div>
 
         {/* History log block */}
-        <div className="bg-neutral-950/40 p-5 rounded-3xl border border-white/5 shadow-lg flex flex-col max-h-[340px] relative overflow-hidden">
-          <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3">
+        <div className="bg-neutral-950/40 p-2 rounded-lg border border-white/5 shadow-lg flex flex-col max-h-[340px] relative overflow-hidden">
+          <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-2">
             <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-1.5">
               <Clock size={13} className="text-neutral-400" />
               <span>Nhật Kí Giải Đấu</span>
@@ -619,7 +619,7 @@ export default function ProTimer() {
           </div>
 
           {/* Scollable time values list */}
-          <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
+          <div className="flex-1 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin">
             {history.length === 0 ? (
               <div className="text-center py-10 text-neutral-500 text-xs font-medium italic">
                 Chưa có dữ liệu. Hãy bấm phím Cách hoặc Nhấn bảng đồng hồ để bắt đầu thi đấu!
@@ -628,13 +628,13 @@ export default function ProTimer() {
               history.map((item, index) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between bg-neutral-900/60 p-2.5 rounded-xl border border-white/5 text-xs hover:border-blue-500/20 transition-all transition-transform hover:-translate-x-0.5"
+                  className="flex items-center justify-between bg-neutral-900/60 p-2.5 rounded-lg border border-white/5 text-xs hover:border-blue-500/20 transition-all transition-transform hover:-translate-x-0.5"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <span className="font-mono font-bold text-neutral-500 w-5">#{history.length - index}</span>
                     <span className="font-mono font-bold text-blue-400 text-sm">{formatTime(item.time)}</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <span className="text-[10px] text-neutral-500 font-medium italic">{item.date}</span>
                     <button
                       onClick={() => deleteHistoryItem(item.id)}

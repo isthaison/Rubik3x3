@@ -521,9 +521,9 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-3 sm:p-4 bg-neutral-900/40 rounded-2xl sm:rounded-3xl border border-white/5 shadow-2xl backdrop-blur-md w-full max-w-[340px] xs:max-w-[380px] sm:max-w-none">
+    <div className="flex flex-col items-center justify-center p-2 sm:p-2 bg-neutral-900/40 rounded-lg sm:rounded-lg border border-white/5 shadow-2xl backdrop-blur-md w-full max-w-[340px] xs:max-w-[380px] sm:max-w-none">
       {/* 3D Cube Stage Container */}
-      <div className="relative w-full aspect-square max-w-[260px] xs:max-w-[280px] sm:max-w-[360px] md:max-w-[400px] flex items-center justify-center overflow-hidden py-4 sm:py-8 select-none">
+      <div className="relative w-full aspect-square max-w-[260px] xs:max-w-[280px] sm:max-w-[360px] md:max-w-[400px] flex items-center justify-center overflow-hidden py-2 sm:py-2 select-none">
         {/* Interaction helper text overlay */}
         {interactive && (
           <div className="absolute top-1.5 left-2 flex items-center gap-1 text-[10px] sm:text-xs text-neutral-400 font-medium pointer-events-none">
@@ -729,7 +729,7 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
 
       {/* Camera Position Controls & Display Mode */}
       {!minimal && (
-        <div className="flex flex-wrap items-center gap-3 w-full justify-between mt-3 border-t border-white/5 pt-3">
+        <div className="flex flex-wrap items-center gap-1.5 w-full justify-between mt-2 border-t border-white/5 pt-3">
           <div className="flex items-center gap-1 sm:gap-1.5">
             <button
               id="btn-zoom-in"
@@ -769,7 +769,7 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
             </button>
           </div>
 
-          <div className="flex flex-1 sm:flex-none justify-end sm:justify-start items-center gap-2 ml-auto sm:ml-0">
+          <div className="flex flex-1 sm:flex-none justify-end sm:justify-start items-center gap-1.5 ml-auto sm:ml-0">
             <span className="text-[10px] text-neutral-400 font-medium whitespace-nowrap">Độ nhạy:</span>
             <input 
               type="range" 
@@ -790,7 +790,7 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
 
       {/* Hybrid Smart Gesture tip overlay */}
       {!minimal && interactive && onMove && (
-        <div className="w-full mt-3 bg-neutral-950/40 p-2.5 sm:p-3 rounded-2xl border border-white/5 space-y-1 text-left">
+        <div className="w-full mt-2 bg-neutral-950/40 p-2.5 sm:p-2 rounded-lg border border-white/5 space-y-1 text-left">
           <div className="flex items-center gap-1.5 text-xs font-bold text-blue-400">
             <Sparkles size={13} className="animate-pulse" />
             <span>Cảm ứng 3D thông minh tích hợp:</span>
@@ -804,7 +804,7 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
 
       {/* Quick turn buttons for direct Virtual Cube manipulations */}
       {!minimal && onMove && (
-        <div className="w-full mt-3 bg-neutral-950/60 p-2.5 sm:p-3.5 rounded-2xl border border-white/5">
+        <div className="w-full mt-2 bg-neutral-950/60 p-2.5 sm:p-2 rounded-lg border border-white/5">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[10px] sm:text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Xoay Khối Ảo Nhanh:</span>
             <span className="text-[9px] font-mono text-amber-400/80 italic hidden xs:inline sm:inline">Dấu (') là xoay ngược chiều</span>
