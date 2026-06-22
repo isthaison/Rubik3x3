@@ -788,44 +788,7 @@ const ThreeDCube = forwardRef<ThreeDCubeRef, ThreeDCubeProps>(({
         </div>
       )}
 
-      {/* Hybrid Smart Gesture tip overlay */}
-      {!minimal && interactive && onMove && (
-        <div className="w-full mt-2 bg-neutral-950/40 p-2.5 sm:p-2 rounded-lg border border-white/5 space-y-1 text-left">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-blue-400">
-            <Sparkles size={13} className="animate-pulse" />
-            <span>Cảm ứng 3D thông minh tích hợp:</span>
-          </div>
-          <p className="text-[11px] text-zinc-400 leading-relaxed">
-            • <strong className="text-zinc-200">Vuốt trực tiếp trên màu Rubik</strong> để tự động xoay chuyển các lớp màu theo chiều ngón tay.<br />
-            • <strong className="text-zinc-200">Kéo chéo hoặc kéo ngoài khoảng trống</strong> để xoay đổi góc nhìn 3D đa chiều cực kỳ mượt mà.
-          </p>
-        </div>
-      )}
 
-      {/* Quick turn buttons for direct Virtual Cube manipulations */}
-      {!minimal && onMove && (
-        <div className="w-full mt-2 bg-neutral-950/60 p-2.5 sm:p-2 rounded-lg border border-white/5">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Xoay Khối Ảo Nhanh:</span>
-            <span className="text-[9px] font-mono text-amber-400/80 italic hidden xs:inline sm:inline">Dấu (') là xoay ngược chiều</span>
-          </div>
-          <div className="grid grid-cols-6 gap-1 sm:gap-1.5">
-            {quickMoves.map((m) => (
-              <button
-                key={m}
-                id={`btn-move-${m.replace("'", 'prime')}`}
-                onClick={() => {
-                  triggerHaptic(15);
-                  handlePerformMove(m);
-                }}
-                className="py-1 sm:py-1.5 text-[11px] sm:text-xs font-mono font-bold bg-neutral-800 text-white hover:bg-blue-600 hover:text-white rounded-lg border border-white/5 active:scale-95 transition-all text-center cursor-pointer"
-              >
-                {m}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 });
