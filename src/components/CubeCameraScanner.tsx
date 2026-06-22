@@ -21,6 +21,16 @@ const FACE_LABELS: Record<FaceName, string> = {
   D: 'Mặt Dưới (Vàng)',
 };
 
+// Compact labels without redundant color text or long sentences for 6-button list
+const COMPACT_FACE_LABELS: Record<FaceName, string> = {
+  U: 'Trên',
+  L: 'Trái',
+  F: 'Trước',
+  R: 'Phải',
+  B: 'Sau',
+  D: 'Dưới',
+};
+
 // Map center colors of a standard Rubik's cube to their respective face names
 const CENTER_COLOR_TO_FACE: Record<CubeColor, FaceName> = {
   white: 'U',
@@ -413,12 +423,9 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
               </div>
             </div>
 
-            {/* Chi tiết phân bổ màu sắc */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-medium text-slate-400 block uppercase tracking-wider">
-                Số lượng ô của từng màu (Chuẩn chỉnh = 9 ô):
-              </span>
-              <div className="grid grid-cols-3 gap-1.5">
+            {/* Chi tiết phân bổ màu sắc - Tinh chỉnh siêu gọn gàng */}
+            <div className="space-y-1 bg-black/20 p-2 rounded-lg border border-white/5">
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5">
                 {(Object.keys(colorCounts) as CubeColor[]).map((col) => {
                   const count = colorCounts[col];
                   const isCorrect = count === 9;
@@ -431,25 +438,14 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
                     red: 'Đỏ',
                   };
                   return (
-                    <div 
-                      key={col} 
-                      className={`p-1 rounded-md border text-center flex flex-col items-center justify-center transition-all ${
-                        isCorrect 
-                          ? 'bg-neutral-900/50 border-emerald-500/15 text-slate-300' 
-                          : scannedFacesInSession.size === 6 
-                          ? 'bg-red-950/25 border-red-500/25 text-red-200 animate-pulse' 
-                          : 'bg-neutral-900 border-white/5 text-slate-400'
-                      }`}
-                    >
-                      <div className="flex items-center gap-1 mb-0.5 justify-center">
-                        <span 
-                          className="w-2.5 h-2.5 rounded-full border border-black/30 block shrink-0"
-                          style={{ backgroundColor: COLORS[col] }}
-                        />
-                        <span className="text-[9px] font-medium leading-none">{COLOR_NAMES_VI[col]}</span>
-                      </div>
-                      <span className={`text-xs font-bold font-mono leading-none ${
-                        isCorrect ? 'text-emerald-400' : count > 9 ? 'text-red-400' : 'text-amber-400'
+                    <div key={col} className="flex items-center gap-1 text-[11px] font-medium">
+                      <span 
+                        className="w-2.5 h-2.5 rounded-full border border-black/45 block shrink-0"
+                        style={{ backgroundColor: COLORS[col] }}
+                      />
+                      <span className="text-neutral-400 text-[10px]">{COLOR_NAMES_VI[col]}:</span>
+                      <span className={`font-mono font-extrabold ${
+                        isCorrect ? 'text-emerald-400' : count > 9 ? 'text-rose-400' : 'text-amber-400'
                       }`}>
                         {count}/9
                       </span>
@@ -508,8 +504,12 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
                   }`}
                 >
                   <div className="min-w-0">
-                    <span className={`text-[10px] sm:text-xs font-black block truncate transition-all ${isActive ? 'text-blue-400' : 'text-slate-200'}`}>
-                      {FACE_LABELS[face]}
+                    <span className={`text-[10px] sm:text-xs font-black block truncate transition-all flex items-center gap-1.5 ${isActive ? 'text-blue-400' : 'text-slate-200'}`}>
+                      <span 
+                        className="w-2.5 h-2.5 rounded-full border border-black/40 block shrink-0"
+                        style={{ backgroundColor: COLORS[STANDARD_FACE_CENTERS[face]] }}
+                      />
+                      <span>{COMPACT_FACE_LABELS[face]}</span>
                     </span>
                   </div>
 
@@ -528,14 +528,11 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
           </div>
 
           {/* Active face inspection + manual paint fine-tuning */}
-          <div className="bg-[#111625] p-3 rounded-xl border border-white/5 shadow-xl space-y-4">
-            <div className="text-center space-y-1">
-              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest block">
-                Bút Tô Màu Thủ Công Bằng Palette
+          <div className="bg-[#111625] p-3 rounded-xl border border-white/5 shadow-xl space-y-3">
+            <div className="text-center">
+              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider block">
+                SỬA NHANH MÀU Ô LỖI (CHẠM & TÔ)
               </span>
-              <p className="text-[10.5px] text-zinc-400">
-                Chạm chọn một màu mực ở Palette dưới, sau đó click vào ô (1 - 9) để chỉnh hoặc sửa nhanh màu sắc!
-              </p>
             </div>
 
             {/* Simulated 3x3 layout of active face */}
