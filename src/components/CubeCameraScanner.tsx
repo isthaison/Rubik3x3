@@ -149,10 +149,15 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
     handleManualCapture,
     handleModifySticker,
     handleApplyCompletedScan,
+    handleSimulateScan,
+    handleClearAllScans,
+    skipCooldown,
     colorCounts,
     allFacesCaptured,
     validation,
   } = useCubeScanner({ currentState, onApplyScan, onClose });
+
+  const [selectedInk, setSelectedInk] = useState<CubeColor>('white');
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-[#0c0e14] font-sans text-slate-100 overflow-hidden">
@@ -194,16 +199,33 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
         <div className="flex-1 flex flex-col items-center justify-center my-2 relative">
           
           {errorMessage ? (
-            <div className="max-w-md p-2 bg-red-950/20 border border-red-500/20 rounded-lg text-center space-y-1.5 shadow-xl">
-              <AlertCircle size={38} className="text-red-500 mx-auto animate-bounce" />
-              <p className="text-xs text-red-100 font-medium leading-relaxed">{errorMessage}</p>
-              <div className="flex gap-2 justify-center">
-                <button
-                  onClick={startCamera}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold transition cursor-pointer"
-                >
-                  Nhàp Thử Lại
-                </button>
+            <div className="max-w-md p-4 bg-slate-900 border border-white/5 rounded-xl text-center space-y-3.5 shadow-2xl">
+              <AlertCircle size={36} className="text-yellow-500 mx-auto animate-pulse" />
+              <div className="space-y-1">
+                <p className="text-xs text-slate-200 font-bold leading-relaxed">Không Thể Khởi Chạy Camera</p>
+                <p className="text-[11px] text-zinc-400 font-medium leading-relaxed">{errorMessage}</p>
+              </div>
+              <div className="flex flex-col gap-2 justify-center">
+                <div className="flex gap-2 justify-center">
+                  <button
+                    onClick={startCamera}
+                    className="px-3.5 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 bg-gradient-to-r from-zinc-800 to-zinc-700 border border-zinc-700/50"
+                  >
+                    <RefreshCw size={12} />
+                    <span>Nạp Thử Lại</span>
+                  </button>
+                  
+                  <button
+                    onClick={handleSimulateScan}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1 shadow-lg shadow-emerald-500/10 active:scale-95"
+                  >
+                    <Sparkles size={12} className="text-amber-300 animate-spin" />
+                    <span>Chạy Bản Demo</span>
+                  </button>
+                </div>
+                <p className="text-[10px] text-zinc-500 italic mt-1 font-medium">
+                  Mẹo: Click nút "Chạy Bản Demo" màu xanh lá để lập nhanh trạng thái Rubik mẫu và test ngay bộ giải 3D!
+                </p>
               </div>
             </div>
           ) : (
@@ -292,12 +314,26 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
  
                   {/* Ring stability indicator - simplified to a subtle glow on the frame instead of a full screen overlay */}
 
-                  {/* Cooldown lock view screen helper */}
+                  {/* Cooldown lock view screen helper with bypass skip button */}
                   {cooldownCountdown > 0 && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-emerald-950/85 backdrop-blur-sm rounded-lg text-center p-2">
-                      <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-md font-bold animate-bounce border border-emerald-400/20">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#090b11]/92 backdrop-blur-[2px] rounded-lg text-center p-4 z-30 select-none">
+                      <div className="w-10 h-10 bg-emerald-500/15 text-emerald-400 rounded-full flex items-center justify-center text-sm font-bold border border-emerald-400/30 animate-pulse">
                         ✓
                       </div>
+                      <span className="text-xs font-bold text-emerald-400 mt-2 block">
+                        Đã quét Mặt {FACE_LABELS[activeFace]}!
+                      </span>
+                      <span className="text-[10.5px] text-zinc-400 mt-1 block font-mono">Đóng băng hình ảnh... {cooldownCountdown}s</span>
+                      
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          skipCooldown();
+                        }}
+                        className="mt-3 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-lg text-[9px] uppercase tracking-wider shadow-lg hover:scale-105 active:scale-95 transition pointer-events-auto cursor-pointer"
+                      >
+                        Bỏ qua / Quét tiếp
+                      </button>
                     </div>
                   )}
                 </div>
@@ -486,40 +522,107 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
           </div>
 
           {/* Active face inspection + manual paint fine-tuning */}
-          <div className="bg-[#101420] p-2.5 rounded-lg border border-white/5 shadow-xl flex justify-center items-center">
+          <div className="bg-[#111625] p-3 rounded-xl border border-white/5 shadow-xl space-y-4">
+            <div className="text-center space-y-1">
+              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest block">
+                Bút Tô Màu Thủ Công Bằng Palette
+              </span>
+              <p className="text-[10.5px] text-zinc-400">
+                Chạm chọn một màu mực ở Palette dưới, sau đó click vào ô (1 - 9) để chỉnh hoặc sửa nhanh màu sắc!
+              </p>
+            </div>
+
             {/* Simulated 3x3 layout of active face */}
-            <div className="grid grid-cols-3 gap-1.5 w-32 sm:w-36 aspect-square p-2 bg-neutral-950/80 rounded-lg border border-white/10 shadow-inner">
+            <div className="flex flex-col items-center gap-3">
+              <div className="grid grid-cols-3 gap-1.5 w-32 sm:w-36 aspect-square p-2 bg-neutral-950/80 rounded-lg border border-white/10 shadow-inner relative justify-center items-center">
                 {scannedCube[activeFace].map((col, idx) => (
-                  <div key={idx} className="relative group aspect-square">
-                    {/* Select dropdown selection box over original color */}
-                      <select
-                        value={col}
-                        onChange={(e) => handleModifySticker(idx, e.target.value as CubeColor)}
-                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                        title="Sửa màu"
-                      >
-                        <option value="white">Trắng</option>
-                        <option value="yellow">Vàng</option>
-                        <option value="green">Lục</option>
-                        <option value="blue">Lam</option>
-                        <option value="orange">Cam</option>
-                        <option value="red">Đỏ</option>
-                      </select>
-                    <div
-                      style={{ backgroundColor: COLORS[col] }}
-                      className="w-full h-full rounded-lg border border-neutral-950/45 duration-150 cursor-pointer shadow-subtle flex items-center justify-center text-[10px] font-mono font-bold text-black/55 select-none hover:scale-105 active:scale-95 group-hover:bg-slate-200"
-                    >
-                      {idx + 1}
-                    </div>
-                  </div>
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      if (idx === 4) {
+                        playSoundFeedback('error');
+                        triggerHaptic([40, 20]);
+                        alert('Ô tâm giữa (ô 5) được định hướng cố định theo màu tiêu chuẩn đại diện cho mặt đó. Hãy xoay các mặt khác để thay đổi hướng, không chỉnh màu tâm giữa!');
+                        return;
+                      }
+                      handleModifySticker(idx, selectedInk);
+                    }}
+                    style={{ backgroundColor: COLORS[col] }}
+                    className="w-full aspect-square rounded-lg border border-neutral-950/45 duration-150 cursor-pointer shadow-subtle flex items-center justify-center text-xs font-bold text-neutral-950/70 select-none hover:scale-105 active:scale-92 transition-all text-center focus:outline-none"
+                    title={`Ô ${idx + 1} - Chạm để tô bằng mực ${selectedInk}`}
+                  >
+                    {idx + 1}
+                  </button>
                 ))}
               </div>
+
+              {/* Ink Selection Palette */}
+              <div className="w-full space-y-2 bg-[#090b11] p-2 rounded-lg border border-white/5 shrink-0">
+                <span className="text-[9.5px] font-bold text-zinc-400 text-center block uppercase tracking-wider">
+                  Mực tô hiện tại:
+                </span>
+                <div className="flex justify-center gap-1.5 flex-wrap">
+                  {(['white', 'yellow', 'green', 'blue', 'orange', 'red'] as CubeColor[]).map((lnk) => {
+                    const COLOR_NAMES_VI: Record<CubeColor, string> = {
+                      white: 'Trắng',
+                      yellow: 'Vàng',
+                      green: 'Lục',
+                      blue: 'Lam',
+                      orange: 'Cam',
+                      red: 'Đỏ',
+                    };
+                    const isSelected = selectedInk === lnk;
+                    return (
+                      <button
+                        key={lnk}
+                        onClick={() => {
+                          triggerHaptic(8);
+                          setSelectedInk(lnk);
+                        }}
+                        style={{ backgroundColor: COLORS[lnk] }}
+                        className={`px-2.5 py-1.5 rounded-md border text-[10px] font-extrabold flex items-center gap-1.5 cursor-pointer transition-all ${
+                          isSelected
+                            ? 'scale-110 shadow-md ring-2 ring-blue-500 text-neutral-950 border-white font-black'
+                            : 'opacity-70 hover:opacity-100 text-[#090b11]/90 hover:scale-105 border-transparent'
+                        }`}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-black/40" />
+                        <span className="bg-white/80 px-1 py-0.2 rounded-sm text-neutral-950 text-[8.5px] leading-none shrink-0 border border-black/5">
+                          {COLOR_NAMES_VI[lnk]}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Action console bottom footer validation & trigger apply solver */}
         <div className="pt-2 border-t border-white/5 space-y-1.5 bg-[#090b11]">
           
+          {/* Quick utility controllers for testing and resetting */}
+          <div className="grid grid-cols-2 gap-2 mt-0.5 shrink-0 pb-1 flex-wrap">
+            <button
+              onClick={handleSimulateScan}
+              className="px-2.5 py-2 bg-neutral-900 hover:bg-neutral-850 border border-amber-500/25 rounded-lg text-zinc-300 hover:text-white transition cursor-pointer flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] font-black active:scale-95"
+              title="Điền nhanh một mô phỏng xoay có thực và sẵn sàng giải"
+            >
+              <Sparkles size={11} className="text-amber-400 animate-pulse" />
+              <span>Nạp Mẫu Demo</span>
+            </button>
+            
+            <button
+              onClick={handleClearAllScans}
+              className="px-2.5 py-2 bg-neutral-900 hover:bg-red-950/20 border border-red-500/25 rounded-lg text-red-450 hover:text-red-300 transition cursor-pointer flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] font-black active:scale-95"
+              title="Xóa trống toàn bộ tiến trình và vẽ lại từ đầu"
+            >
+              <X size={11} />
+              <span>Reset Dữ Liệu</span>
+            </button>
+          </div>
+
           <div className="flex gap-1.5">
             <button
               onClick={handleApplyCompletedScan}

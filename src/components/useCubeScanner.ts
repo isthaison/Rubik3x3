@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { FaceName, CubeColor, CubeState } from '../types';
-import { cloneState } from '../utils/cubeEngine';
+import { cloneState, getSolvedState, applyMoves, generateScramble } from '../utils/cubeEngine';
 import { CubeScannerDetector } from '../utils/cubeScannerDetector';
 import { triggerHaptic } from '../utils/haptics';
 
@@ -114,13 +114,13 @@ export function useCubeScanner({ currentState, onApplyScan, onClose }: UseCubeSc
     if (cooldownCountdown > 0) {
       timer = setInterval(() => {
         setCooldownCountdown((prev) => {
-          if (prev <= 1) {
+          if (prev <= 0.1) {
             isCooldownActiveRef.current = false;
             return 0;
           }
-          return prev - 1;
+          return Math.round((prev - 0.1) * 10) / 10;
         });
-      }, 1000);
+      }, 100);
     }
     return () => clearInterval(timer);
   }, [cooldownCountdown]);
@@ -377,8 +377,8 @@ export function useCubeScanner({ currentState, onApplyScan, onClose }: UseCubeSc
       return next;
     });
 
-    // Trigger visual absolute lock and transition
-    setCooldownCountdown(3); // 3 seconds screen lock before next scan is active
+    // Trigger visual absolute lock and transition (reduced to 1.5s for hyper reactivity)
+    setCooldownCountdown(1.5); 
 
     // Double haptic success feedback
     setTimeout(() => {
@@ -406,6 +406,36 @@ export function useCubeScanner({ currentState, onApplyScan, onClose }: UseCubeSc
     if (cooldownCountdown > 0) return;
     triggerHaptic(15);
     triggerAutoCapture(detectedColors, activeFace);
+  };
+
+  const skipCooldown = () => {
+    setCooldownCountdown(0);
+    isCooldownActiveRef.current = false;
+    triggerHaptic(10);
+  };
+
+  const handleSimulateScan = () => {
+    triggerHaptic([30, 15, 30]);
+    playSoundFeedback('capture');
+    
+    // Generate a valid, solvable scrambled Rubik state
+    let solved = getSolvedState();
+    const scrambleStr = generateScramble();
+    const scrambleMoves = scrambleStr.split(' ').filter((v) => v.trim());
+    const scrambled = applyMoves(solved, scrambleMoves);
+    
+    setScannedCube(scrambled);
+    setScannedFacesInSession(new Set<FaceName>(['U', 'L', 'F', 'R', 'B', 'D']));
+    setCooldownCountdown(1);
+    setIsCubeFaceDetected(false);
+  };
+
+  const handleClearAllScans = () => {
+    triggerHaptic(20);
+    setScannedCube(getSolvedState());
+    setScannedFacesInSession(new Set<FaceName>());
+    setCooldownCountdown(0);
+    isCooldownActiveRef.current = false;
   };
 
   const handleModifySticker = (idx: number, newColor: CubeColor) => {
@@ -509,6 +539,9 @@ export function useCubeScanner({ currentState, onApplyScan, onClose }: UseCubeSc
     handleManualCapture,
     handleModifySticker,
     handleApplyCompletedScan,
+    handleSimulateScan,
+    handleClearAllScans,
+    skipCooldown,
     colorCounts,
     allFacesCaptured,
     validation,
