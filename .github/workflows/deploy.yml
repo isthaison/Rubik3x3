@@ -4,15 +4,20 @@ on:
   push:
     branches:
       - main
-      - master # Support both common default branches
+      - master
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Thiết lập các quyền hạn của GITHUB_TOKEN để triển khai lên GitHub Pages trực tiếp
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
-    concurrency: ci-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -33,9 +38,14 @@ jobs:
       - name: Build production bundle
         run: npm run build
 
-      - name: Deploy static site artifacts
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Setup pages environment
+        uses: actions/configure-pages@v4
+
+      - name: Upload compiled pages artifacts
+        uses: actions/upload-pages-artifact@v3
         with:
-          folder: dist # The folder Vite outputs compilation assets to
-          branch: gh-pages # The target branch for GitHub Pages hosting
-          clean: true
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
