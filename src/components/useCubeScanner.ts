@@ -255,10 +255,33 @@ export function useCubeScanner({ currentState, onApplyScan, onClose }: UseCubeSc
           try {
             const imgData = ctx.getImageData(pxX - halfKernel, pxY - halfKernel, kernel, kernel);
             const data = imgData.data;
+            const pixels: { r: number; g: number; b: number; s: number; v: number }[] = [];
+            
             for (let i = 0; i < data.length; i += 4) {
-              rSum += data[i];
-              gSum += data[i + 1];
-              bSum += data[i + 2];
+              const r = data[i];
+              const g = data[i + 1];
+              const b = data[i + 2];
+              const { s, v } = CubeScannerDetector.rgbToHsv(r, g, b);
+              pixels.push({ r, g, b, s, v });
+            }
+
+            // Exclude pixels that have extreme glare (very high brightness, low saturation)
+            // if we have other colorful pixels in the same sticker sampling kernel. This 
+            // completely screens out shiny white reflection spots on glossy stickers.
+            const hasColorful = pixels.some(p => p.s >= 0.22);
+            let validPixels = pixels;
+
+            if (hasColorful) {
+              const filtered = pixels.filter(p => !(p.s < 0.16 && p.v > 0.75));
+              if (filtered.length > 0) {
+                validPixels = filtered;
+              }
+            }
+
+            for (const p of validPixels) {
+              rSum += p.r;
+              gSum += p.g;
+              bSum += p.b;
               count++;
             }
           } catch (e) {

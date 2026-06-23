@@ -53,15 +53,18 @@ export class CubeScannerDetector {
    */
   public static classifyColor(r: number, g: number, b: number): CubeColor {
     const { h, s, v } = this.rgbToHsv(r, g, b);
+    const maxVal = Math.max(r, g, b);
+    const minVal = Math.min(r, g, b);
+    const chromaRange = maxVal - minVal;
 
-    // 1. Detect White: Low saturation, relatively high brightness
-    if (s < 0.22 && v > 0.42) {
-      return 'white';
-    }
-
-    // Low lighting fallback
-    if (v < 0.12) {
-      return 'white'; // default to white under total shadow
+    // 1. Detect White: Must be extremely neutral under normal-to-bright lighting.
+    // If there is glare on colored stickers, chromaRange remains high (biased), while true white is very uniform.
+    if (v >= 0.12) {
+      if (s < 0.14 || (chromaRange < 24 && s < 0.22)) {
+        return 'white';
+      }
+    } else {
+      return 'white'; // Low lighting fallback
     }
 
     // 2. Classify by Hue angles (0 - 360 degrees)
@@ -116,11 +119,20 @@ export class CubeScannerDetector {
       return fromHsv;
     }
 
-    if (fromHsv === 'white' || fromHsv === 'yellow') {
+    // If HSV detected a specific color, but Distance classifier fell back to white due to high brightness/glare,
+    // we MUST trust the Hue-based HSV classifier (since glare washes out RGB Euclidean distance to white).
+    if (fromDistance === 'white' && fromHsv !== 'white') {
       return fromHsv;
     }
 
-    return fromDistance;
+    // Default to fromHsv as it is extremely robust to lighting variations,
+    // unless distance classifier helps refine red vs orange.
+    if ((fromHsv === 'red' || fromHsv === 'orange') && (fromDistance === 'red' || fromDistance === 'orange')) {
+      return fromDistance;
+    }
+
+    // Otherwise, prefer fromHsv as it is more robust to general lighting shifts
+    return fromHsv;
   }
 
   /**
