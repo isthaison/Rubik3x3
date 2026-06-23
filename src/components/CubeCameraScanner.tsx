@@ -184,7 +184,7 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
               <div className="flex justify-center">
                 <button
                   onClick={startCamera}
-                  className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 bg-gradient-to-r from-zinc-800 to-zinc-700 border border-zinc-700/50"
+                  className="px-6 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 bg-gradient-to-r from-zinc-800 to-zinc-700 border border-zinc-700/50 active:scale-95"
                 >
                   <RefreshCw size={12} />
                   <span>Nạp Thử Lại</span>
@@ -331,6 +331,25 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
               </button>
 
 
+            </div>
+          )}
+
+          {/* Real-time hold stability progress loader */}
+          {isCubeFaceDetected && (
+            <div className="w-full max-w-[420px] mt-2 px-3">
+              <div className="flex items-center justify-between text-[10px] text-zinc-400 mb-1">
+                <span className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping shrink-0" />
+                  Giữ khối ổn định để quét tự động...
+                </span>
+                <span className="font-mono font-black text-cyan-400">{stabilityProgress}%</span>
+              </div>
+              <div className="w-full bg-neutral-900/80 h-1 rounded-full overflow-hidden border border-white/5">
+                <div 
+                  className="h-full bg-gradient-to-r from-sky-500 via-cyan-400 to-emerald-400 transition-all duration-100 rounded-full"
+                  style={{ width: `${stabilityProgress}%` }}
+                />
+              </div>
             </div>
           )}
 
@@ -498,14 +517,14 @@ export default function CubeCameraScanner({ onClose, onApplyScan, currentState }
         <div className="pt-2 border-t border-white/5 space-y-1.5 bg-[#090b11]">
           
           {/* Quick utility controllers for resetting */}
-          <div className="w-full mt-0.5 shrink-0 pb-1">
+          <div className="mt-0.5 shrink-0 pb-1">
             <button
               onClick={handleClearAllScans}
-              className="w-full px-2.5 py-2 bg-neutral-900 hover:bg-red-950/20 border border-red-500/25 rounded-lg text-red-400 hover:text-red-300 transition cursor-pointer flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] font-black active:scale-95"
+              className="w-full px-2.5 py-2 bg-neutral-900 hover:bg-rose-950/20 border border-red-500/15 rounded-lg text-red-400 hover:text-red-300 transition cursor-pointer flex items-center justify-center gap-1.5 text-xs font-black active:scale-95"
               title="Xóa trống toàn bộ tiến trình và vẽ lại từ đầu"
             >
-              <X size={11} />
-              <span>Xoá Hết Mặt Đã Quét / Vẽ Lại</span>
+              <X size={12} />
+              <span>Xoá Tiến Trình Đã Quét</span>
             </button>
           </div>
 
